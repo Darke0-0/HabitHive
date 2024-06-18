@@ -7,7 +7,8 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 public class CreationViewPagerAdapter extends FragmentStateAdapter {
 
-    public CreationViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
+    // Default constructor
+    public CreationViewPagerAdapter() {
         super(fragmentActivity);
     }
 
