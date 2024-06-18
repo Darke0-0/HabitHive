@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="primaryTextColor">#FF000000</color>
+    <color name="secondaryTextColor">#ebdb02</color>
+
+    <color name="radio_button_checked">#FFEB3B</color>
+    <color name="radio_button_unchecked">#FFFFFF</color>
+
+    <color name="colorChecked">#FFEB3B</color>
+    <color name="colorUnchecked">#FFFFFF</color>
+</resources>

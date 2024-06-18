@@ -1,0 +1,39 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <Spinner
+        android:id="@+id/spinner_goal_count"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:entries="@array/count_options" />
+
+    <EditText
+        android:id="@+id/input_goal_count_number"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Number"
+        android:inputType="number"
+        android:background="@color/colorUnchecked"
+        android:padding="12dp"
+        android:textColor="@color/primaryTextColor"
+        android:textColorHint="@color/secondaryTextColor" />
+
+    <EditText
+        android:id="@+id/input_goal_count_unit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Unit"
+        android:background="@color/colorUnchecked"
+        android:padding="12dp"
+        android:textColor="@color/primaryTextColor"
+        android:textColorHint="@color/secondaryTextColor" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="a day"
+        android:textColor="@color/primaryTextColor" />
+</LinearLayout>

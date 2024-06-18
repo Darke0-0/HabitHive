@@ -1,0 +1,13 @@
+<!-- res/layout/calendar_day_item.xml -->
+<CheckBox xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/dayCheckBox"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_weight="1"
+    android:gravity="center"
+    android:layout_margin="4dp"
+    android:padding="10dp"
+    android:background="@drawable/radio_button_background"
+    android:textColor="@android:color/black"
+    android:textSize="16sp"
+    android:button="@null" />

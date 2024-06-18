@@ -1,0 +1,35 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <EditText
+        android:id="@+id/input_goal_checklist_item"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Checklist Item"
+        android:background="@color/colorUnchecked"
+        android:padding="12dp"
+        android:textColor="@color/primaryTextColor"
+        android:textColorHint="@color/secondaryTextColor" />
+
+    <Button
+        android:id="@+id/add_checklist_item_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Add Item"
+        android:background="?attr/selectableItemBackground"
+        android:backgroundTint="?attr/colorPrimary"
+        android:textColor="@color/primaryTextColor" />
+
+    <LinearLayout
+        android:id="@+id/checklist_items_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+    </LinearLayout>
+
+
+</LinearLayout>
+
