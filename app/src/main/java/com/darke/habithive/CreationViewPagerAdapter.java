@@ -11,11 +11,6 @@ public class CreationViewPagerAdapter extends FragmentStateAdapter {
         super(fragmentActivity);
     }
 
-    // Default constructor
-    public CreationViewPagerAdapter() {
-        super(null); // or provide an appropriate default FragmentActivity instance
-    }
-
     @NonNull
     @Override
     public Fragment createFragment(int position) {
