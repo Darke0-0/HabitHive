@@ -15,7 +15,6 @@ public class MyApplication extends Application {
 
         // Optional: Customize Firestore settings
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
-                .setPersistenceEnabled(true)
                 .build();
         db.setFirestoreSettings(settings);
     }

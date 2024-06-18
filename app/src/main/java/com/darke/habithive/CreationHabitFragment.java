@@ -244,7 +244,7 @@ public class CreationHabitFragment extends Fragment {
         // Create a new TextView to display the time
         TextView timeTextView = new TextView(getContext());
         timeTextView.setText(time);
-        timeTextView.setTextColor(getResources().getColor(R.color.secondaryTextColor));
+        timeTextView.setTextColor(getResources().getColor(R.color.secondaryTextColor, null));
         timeTextView.setPadding(0, 0, 16, 0);
 
         // Add the TextView to the layout
@@ -253,8 +253,8 @@ public class CreationHabitFragment extends Fragment {
         // Add a remove button
         Button removeButton = new Button(getContext());
         removeButton.setText("Remove");
-        removeButton.setTextColor(getResources().getColor(R.color.secondaryTextColor));
-        removeButton.setBackgroundColor(getResources().getColor(R.color.colorUnchecked));
+        removeButton.setTextColor(getResources().getColor(R.color.secondaryTextColor, null));
+        removeButton.setBackgroundColor(getResources().getColor(R.color.colorUnchecked, null));
 
         // Set an onClickListener to remove the layout when the button is clicked
         removeButton.setOnClickListener(new View.OnClickListener() {
@@ -324,8 +324,8 @@ public class CreationHabitFragment extends Fragment {
                     .setPositiveButton("OK", (dialog, which) -> {
                         Spinner spinnerTimer = dialogView.findViewById(R.id.spinner_goal_timer);
                         String timerType = spinnerTimer.getSelectedItem().toString();
-                        int hour = timePicker.getCurrentHour();
-                        int minute = timePicker.getCurrentMinute();
+                        int hour = timePicker.getHour();
+                        int minute = timePicker.getMinute();
                         addGoalResponse("Timer Goal: " + timerType + " " + String.format("%02d:%02d", hour, minute) + " ");
                     })
                     .setNegativeButton("Cancel", null);
@@ -380,14 +380,14 @@ public class CreationHabitFragment extends Fragment {
 
         TextView itemTextView = new TextView(getContext());
         itemTextView.setText(itemText);
-        itemTextView.setTextColor(getResources().getColor(R.color.primaryTextColor));
+        itemTextView.setTextColor(getResources().getColor(R.color.primaryTextColor, null));
         itemTextView.setPadding(0, 0, 16, 0);
         itemTextView.setLayoutParams(new LinearLayout.LayoutParams(0, LinearLayout.LayoutParams.WRAP_CONTENT, 1));
 
         Button removeButton = new Button(getContext());
         removeButton.setText("Remove");
-        removeButton.setTextColor(getResources().getColor(R.color.primaryTextColor));
-        removeButton.setBackgroundColor(getResources().getColor(R.color.colorUnchecked));
+        removeButton.setTextColor(getResources().getColor(R.color.primaryTextColor, null));
+        removeButton.setBackgroundColor(getResources().getColor(R.color.colorUnchecked, null));
         removeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -403,7 +403,7 @@ public class CreationHabitFragment extends Fragment {
     private void addGoalResponse(String responseText) {
         TextView responseTextView = new TextView(getContext());
         responseTextView.setText(responseText);
-        responseTextView.setTextColor(getResources().getColor(R.color.secondaryTextColor));
+        responseTextView.setTextColor(getResources().getColor(R.color.secondaryTextColor, null));
         responseTextView.setPadding(8, 8, 8, 8);
         goalResponseContainer.addView(responseTextView);
     }

@@ -7,11 +7,5 @@
     tools:context=".CreationTaskFragment">
 
     <!-- Tasks list goes here -->
-    <TextView
-        android:layout_width="51dp"
-        android:layout_height="29dp"
-        android:text="Tasks"
-        android:textColor="@color/secondaryTextColor">
-    </TextView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
