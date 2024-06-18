@@ -9,7 +9,7 @@ public class CreationViewPagerAdapter extends FragmentStateAdapter {
 
     // Default constructor
     public CreationViewPagerAdapter() {
-        super(fragmentActivity);
+        super((FragmentActivity) null);
     }
 
     @NonNull
