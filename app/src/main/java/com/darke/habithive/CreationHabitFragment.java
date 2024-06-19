@@ -16,6 +16,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -28,22 +29,35 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FieldValue;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CreationHabitFragment extends Fragment {
 
     public CreationHabitFragment() {
         // Required empty public constructor
     }
+    private EditText habitNameInput;
 
     private RadioButton radioDaily, radioWeekly, radioMonthly;
     private LinearLayout dailyDynamicContentContainer, weeklyDynamicContentContainer, monthlyDynamicContentContainer;
 
-    private CheckBox[] checkBoxes;
+    private CheckBox[] day_checkBoxes;
 
     private RecyclerView calendarRecyclerView;
+    private CalendarAdapter CalendarAdapter;
     private ArrayList<String> dates;
 
     private LinearLayout reminderContainer;
@@ -52,6 +66,9 @@ public class CreationHabitFragment extends Fragment {
 
     private RadioButton radioCheckbox, radioCount, radioTimer, radioChecklist;
     private LinearLayout goalResponseContainer;
+
+    private FirebaseAuth auth;
+    private FirebaseFirestore db;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -62,9 +79,29 @@ public class CreationHabitFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_creation_habit, container, false);
 
-        String email = getActivity().getIntent().getStringExtra("email");
-        String name = getActivity().getIntent().getStringExtra("name");
+        String email = requireActivity().getIntent().getStringExtra("email");
+        String name = requireActivity().getIntent().getStringExtra("name");
         Toast.makeText(getContext(), String.format("Email: %s, Name: %s", email, name), Toast.LENGTH_SHORT).show();
+
+        // Add this line at the beginning of your class
+        habitNameInput = view.findViewById(R.id.input_habit_name);
+
+        RadioGroup radioGroupHabitType = view.findViewById(R.id.radioGroupHabitType);
+        radioGroupHabitType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @SuppressLint("UseCompatLoadingForDrawables")
+            @Override
+            public void onCheckedChanged(RadioGroup group, int checkedId) {
+                // Reset all radio buttons to default background
+                for (int i = 0; i < group.getChildCount(); i++) {
+                    RadioButton radioButton = (RadioButton) group.getChildAt(i);
+                    radioButton.setBackground(getResources().getDrawable(R.color.button_color, null));
+                }
+
+                // Set selected radio button background to highlighted
+                RadioButton selectedRadioButton = group.findViewById(checkedId);
+                selectedRadioButton.setBackground(getResources().getDrawable(R.drawable.radio_button_selected, null));
+            }
+        });
 
 //      Daily weekly Monthly Button
         radioDaily = view.findViewById(R.id.radio_daily);
@@ -75,13 +112,10 @@ public class CreationHabitFragment extends Fragment {
         weeklyDynamicContentContainer = view.findViewById(R.id.weekly_dynamic_content_container);
         monthlyDynamicContentContainer = view.findViewById(R.id.monthly_dynamic_content_container);
 
-        View.OnClickListener radioDMCListener = new View.OnClickListener() {
-            @Override
-            public void onClick(@NonNull View v) {
-                clearRadioDMCButtons();
-                ((RadioButton) v).setChecked(true);
-                updateDynamicContent(v.getId());
-            }
+        View.OnClickListener radioDMCListener = v -> {
+            clearRadioDMCButtons();
+            ((RadioButton) v).setChecked(true);
+            updateDynamicContent(v.getId());
         };
 
         radioDaily.setOnClickListener(radioDMCListener);
@@ -96,7 +130,7 @@ public class CreationHabitFragment extends Fragment {
 
 //      Day Selector Button
 
-        checkBoxes = new CheckBox[]{
+        day_checkBoxes = new CheckBox[]{
                 view.findViewById(R.id.check_sunday),
                 view.findViewById(R.id.check_monday),
                 view.findViewById(R.id.check_tuesday),
@@ -106,7 +140,7 @@ public class CreationHabitFragment extends Fragment {
                 view.findViewById(R.id.check_saturday)
         };
 
-        for (CheckBox checkBox : checkBoxes) {
+        for (CheckBox checkBox : day_checkBoxes) {
             setupCheckbox(checkBox);
         }
 
@@ -129,9 +163,9 @@ public class CreationHabitFragment extends Fragment {
             dates.add(String.valueOf(i));
         }
 
-        CalendarAdapter CalAdapter = new CalendarAdapter(getContext(), dates);
+        CalendarAdapter = new CalendarAdapter(getContext(), dates);
         calendarRecyclerView.setLayoutManager(new GridLayoutManager(getContext(), 7));
-        calendarRecyclerView.setAdapter(CalAdapter);
+        calendarRecyclerView.setAdapter(CalendarAdapter);
 
 //      Calender View
 
@@ -141,12 +175,7 @@ public class CreationHabitFragment extends Fragment {
         addReminderButton = view.findViewById(R.id.add_reminder_button);
         reminders = new ArrayList<>();
 
-        addReminderButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                showTimePickerDialog();
-            }
-        });
+        addReminderButton.setOnClickListener(v -> showTimePickerDialog());
 
 //      Reminder View
 
@@ -158,13 +187,10 @@ public class CreationHabitFragment extends Fragment {
         radioChecklist = view.findViewById(R.id.radio_checklist);
         goalResponseContainer = view.findViewById(R.id.goal_response_container);
 
-        View.OnClickListener radioGoalListener = new View.OnClickListener() {
-            @Override
-            public void onClick(@NonNull View v) {
-                clearRadioGoalButtons();
-                ((RadioButton) v).setChecked(true);
-                showGoalInputDialog(v.getId());
-            }
+        View.OnClickListener radioGoalListener = v -> {
+            clearRadioGoalButtons();
+            ((RadioButton) v).setChecked(true);
+            showGoalInputDialog(v.getId());
         };
 
         radioCheckbox.setOnClickListener(radioGoalListener);
@@ -173,6 +199,18 @@ public class CreationHabitFragment extends Fragment {
         radioTimer.setOnClickListener(radioGoalListener);
 
 //       Goal View
+
+        db = FirebaseFirestore.getInstance();
+        auth = FirebaseAuth.getInstance();
+
+//        Button submitButton = view.findViewById(R.id.submit_button);
+//        submitButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                submitHabit();
+//            }
+//        });
+
         return view;
     }
 
@@ -191,13 +229,9 @@ public class CreationHabitFragment extends Fragment {
         // Show the selected dynamic content container
         if (selectedRadioButtonId == R.id.radio_daily) {
             dailyDynamicContentContainer.setVisibility(View.VISIBLE);
-        }
-
-        else if (selectedRadioButtonId == R.id.radio_weekly) {
+        } else if (selectedRadioButtonId == R.id.radio_weekly) {
             weeklyDynamicContentContainer.setVisibility(View.VISIBLE);
-        }
-
-        else if (selectedRadioButtonId == R.id.radio_monthly) {
+        } else if (selectedRadioButtonId == R.id.radio_monthly) {
             monthlyDynamicContentContainer.setVisibility(View.VISIBLE);
         }
     }
@@ -222,12 +256,9 @@ public class CreationHabitFragment extends Fragment {
         int minute = calendar.get(Calendar.MINUTE);
 
         // Create a time picker dialog
-        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), new TimePickerDialog.OnTimeSetListener() {
-            @Override
-            public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-                String time = String.format("%02d:%02d", hourOfDay, minute);
-                addNewReminder(time);
-            }
+        TimePickerDialog timePickerDialog = new TimePickerDialog(getContext(), (view, hourOfDay, minute1) -> {
+            String time = String.format("%02d:%02d", hourOfDay, minute1);
+            addNewReminder(time);
         }, hour, minute, true); // true for 24-hour format
 
         timePickerDialog.show();
@@ -257,12 +288,9 @@ public class CreationHabitFragment extends Fragment {
         removeButton.setBackgroundColor(getResources().getColor(R.color.colorUnchecked, null));
 
         // Set an onClickListener to remove the layout when the button is clicked
-        removeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                reminderContainer.removeView(timeLayout);
-                reminders.remove(time);
-            }
+        removeButton.setOnClickListener(v -> {
+            reminderContainer.removeView(timeLayout);
+            reminders.remove(time);
         });
 
         // Add the remove button to the layout
@@ -270,6 +298,7 @@ public class CreationHabitFragment extends Fragment {
 
         // Add the layout to the reminder container
         reminderContainer.addView(timeLayout);
+
     }
 
     private void clearRadioGoalButtons() {
@@ -295,9 +324,7 @@ public class CreationHabitFragment extends Fragment {
                         addGoalResponse("Checkbox Goal: " + description);
                     })
                     .setNegativeButton("Cancel", null);
-        }
-
-        else if (goalType == R.id.radio_count) {
+        } else if (goalType == R.id.radio_count) {
             dialogView = inflater.inflate(R.layout.dialog_goal_count, null);
             builder.setView(dialogView)
                     .setTitle("Count Goal")
@@ -311,9 +338,7 @@ public class CreationHabitFragment extends Fragment {
                         addGoalResponse("Count Goal: " + countType + " " + countNumber + " " + countUnit + " a day");
                     })
                     .setNegativeButton("Cancel", null);
-        }
-
-        else if (goalType == R.id.radio_timer) {
+        } else if (goalType == R.id.radio_timer) {
             dialogView = inflater.inflate(R.layout.dialog_goal_timer, null);
             TimePicker timePicker = dialogView.findViewById(R.id.input_goal_timer);
             timePicker.setIs24HourView(true);
@@ -329,9 +354,7 @@ public class CreationHabitFragment extends Fragment {
                         addGoalResponse("Timer Goal: " + timerType + " " + String.format("%02d:%02d", hour, minute) + " ");
                     })
                     .setNegativeButton("Cancel", null);
-        }
-
-        else if (goalType == R.id.radio_checklist) {
+        } else if (goalType == R.id.radio_checklist) {
             dialogView = inflater.inflate(R.layout.dialog_goal_checklist, null);
 
             // Handle checklist item addition
@@ -339,33 +362,27 @@ public class CreationHabitFragment extends Fragment {
             Button addItemButton = dialogView.findViewById(R.id.add_checklist_item_button);
             LinearLayout checklistContainer = dialogView.findViewById(R.id.checklist_items_container);
 
-            addItemButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    String itemText = inputChecklistItem.getText().toString().trim();
-                    if (!itemText.isEmpty()) {
-                        addChecklistItem(itemText, checklistContainer);
-                        inputChecklistItem.setText("");
-                    }
+            addItemButton.setOnClickListener(v -> {
+                String itemText = inputChecklistItem.getText().toString().trim();
+                if (!itemText.isEmpty()) {
+                    addChecklistItem(itemText, checklistContainer);
+                    inputChecklistItem.setText("");
                 }
             });
 
             builder.setView(dialogView)
                     .setTitle("Checklist Goal")
-                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            StringBuilder checklistItems = new StringBuilder("Checklist Goal:\n");
-                            for (int i = 0; i < checklistContainer.getChildCount(); i++) {
-                                View itemView = checklistContainer.getChildAt(i);
-                                if (itemView instanceof LinearLayout) {
-                                    LinearLayout itemLayout = (LinearLayout) itemView;
-                                    TextView itemTextView = (TextView) itemLayout.getChildAt(0); // Assuming item text is the first child
-                                    checklistItems.append("- ").append(itemTextView.getText().toString()).append("\n");
-                                }
+                    .setPositiveButton("OK", (dialog, which) -> {
+                        StringBuilder checklistItems = new StringBuilder("Checklist Goal:\n");
+                        for (int i = 0; i < checklistContainer.getChildCount(); i++) {
+                            View itemView = checklistContainer.getChildAt(i);
+                            if (itemView instanceof LinearLayout) {
+                                LinearLayout itemLayout = (LinearLayout) itemView;
+                                TextView itemTextView = (TextView) itemLayout.getChildAt(0); // Assuming item text is the first child
+                                checklistItems.append("- ").append(itemTextView.getText().toString()).append("\n");
                             }
-                            addGoalResponse(checklistItems.toString());
                         }
+                        addGoalResponse(checklistItems.toString());
                     })
                     .setNegativeButton("Cancel", null);
         }
@@ -388,12 +405,7 @@ public class CreationHabitFragment extends Fragment {
         removeButton.setText("Remove");
         removeButton.setTextColor(getResources().getColor(R.color.primaryTextColor, null));
         removeButton.setBackgroundColor(getResources().getColor(R.color.colorUnchecked, null));
-        removeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                checklistContainer.removeView(itemLayout);
-            }
-        });
+        removeButton.setOnClickListener(v -> checklistContainer.removeView(itemLayout));
 
         itemLayout.addView(itemTextView);
         itemLayout.addView(removeButton);
@@ -408,58 +420,72 @@ public class CreationHabitFragment extends Fragment {
         goalResponseContainer.addView(responseTextView);
     }
 
-//    private void saveHabitToFirestore() {
-//        FirebaseUser user = mAuth.getCurrentUser();
-//        if (user == null) {
-//            Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
+    private void submitHabit() {
+
+        Map<String, Object> habitData = new HashMap<>();
+
+        FirebaseUser user = auth.getCurrentUser();
+        if (user == null) {
+            Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        habitData.put("user_id", user.getUid());
+        habitData.put("created_at", FieldValue.serverTimestamp());
+
+//        Name
+        String habitName = habitNameInput.getText().toString().trim();
+        if (habitName.isEmpty()) {
+            Toast.makeText(getContext(), "Please enter a habit name", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        habitData.put("habit_name", habitName);
+
+//        Type
+//        if (habitType.isEmpty()) {
+//            Toast.makeText(getContext(), "Please select a habit type", Toast.LENGTH_SHORT).show();
 //            return;
 //        }
-//
-//        String habitName = habitNameEditText.getText().toString().trim();
-//        if (habitName.isEmpty()) {
-//            Toast.makeText(getContext(), "Please enter a habit name", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-//
-//        String frequency = "";
-//        if (radioDaily.isChecked()) frequency = "Daily";
-//        if (radioWeekly.isChecked()) frequency = "Weekly";
-//        if (radioMonthly.isChecked()) frequency = "Monthly";
-//
-//        Map<String, Object> habitData = new HashMap<>();
-//        habitData.put("name", habitName);
-//        habitData.put("frequency", frequency);
-//        habitData.put("created_at", FieldValue.serverTimestamp());
-//        habitData.put("updated_at", FieldValue.serverTimestamp());
-//
-//        if (frequency.equals("Daily")) {
-//            Map<String, Boolean> daysOfWeek = new HashMap<>();
-//            daysOfWeek.put("Sunday", checkSunday.isChecked());
-//            daysOfWeek.put("Monday", checkMonday.isChecked());
-//            daysOfWeek.put("Tuesday", checkTuesday.isChecked());
-//            daysOfWeek.put("Wednesday", checkWednesday.isChecked());
-//            daysOfWeek.put("Thursday", checkThursday.isChecked());
-//            daysOfWeek.put("Friday", checkFriday.isChecked());
-//            daysOfWeek.put("Saturday", checkSaturday.isChecked());
-//            habitData.put("days_of_week", daysOfWeek);
-//        }
-//
-//        // Add reminder times
-//        // You can add more complex logic to handle reminders if needed
-//        int childCount = reminderContainer.getChildCount();
-//        for (int i = 0; i < childCount; i++) {
-//            View childView = reminderContainer.getChildAt(i);
-//            // Assuming each child is an EditText for simplicity
-//            EditText reminderEditText = (EditText) childView;
-//            String reminderTime = reminderEditText.getText().toString().trim();
-//            if (!reminderTime.isEmpty()) {
-//                habitData.put("reminder_" + i, reminderTime);
-//            }
-//        }
-//
-//        db.collection("users").document(user.getUid()).collection("habits")
-//                .add(habitData)
-//                .addOnSuccessListener(documentReference -> Toast.makeText(getContext(), "Habit saved successfully", Toast.LENGTH_SHORT).show())
-//                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error saving habit", Toast.LENGTH_SHORT).show());
-//    }
+
+//        habitData.put("habit_type", habitType);
+
+//        Frequency
+        String frequency = "";
+        if (radioDaily.isChecked()) frequency = "Daily";
+        if (radioWeekly.isChecked()) frequency = "Weekly";
+        if (radioMonthly.isChecked()) frequency = "Monthly";
+
+        habitData.put("frequency", frequency);
+
+        if (frequency.equals("Daily")) {
+            ArrayList<Integer> daysOfWeek = new ArrayList<>();
+            for (CheckBox dayCheckBox : day_checkBoxes) {
+                daysOfWeek.add(dayCheckBox.isChecked() ? 1 : 0);
+            }
+            habitData.put("days_of_week", daysOfWeek);
+        }else if (frequency.equals("Monthly")) {
+            // Add selected dates to habitData
+            // You can add more complex logic to handle monthly habits if needed
+            ArrayList<Integer> dayOfMonth = CalendarAdapter.getSelectedDay(); // Assuming you have a method to get the selected day
+            habitData.put("day_of_month", dayOfMonth);
+        }
+
+        // Reminder
+        int childCount = reminderContainer.getChildCount();
+        for (int i = 0; i < childCount; i++) {
+            View childView = reminderContainer.getChildAt(i);
+            // Assuming each child is an EditText for simplicity
+            EditText reminderEditText = (EditText) childView;
+            String reminderTime = reminderEditText.getText().toString().trim();
+            if (!reminderTime.isEmpty()) {
+                habitData.put("reminder_" + i, reminderTime);
+            }
+        }
+//        Goal
+//        TODO
+
+        db.collection("users").document(user.getUid()).collection("habits")
+                .add(habitData)
+                .addOnSuccessListener(documentReference -> Toast.makeText(getContext(), "Habit saved successfully", Toast.LENGTH_SHORT).show())
+                .addOnFailureListener(e -> Toast.makeText(getContext(), "Error saving habit", Toast.LENGTH_SHORT).show());
+    }
 }

@@ -7,6 +7,10 @@ import androidx.viewpager2.adapter.FragmentStateAdapter;
 
 public class CreationViewPagerAdapter extends FragmentStateAdapter {
 
+    private static final int TAB_HABIT = 0;
+    private static final int TAB_TASK = 1;
+    private static final int TOTAL_TABS = 2;
+
     public CreationViewPagerAdapter(@NonNull FragmentActivity fragmentActivity) {
         super(fragmentActivity);
     }
@@ -14,11 +18,18 @@ public class CreationViewPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return position == 0 ? new CreationHabitFragment() : new CreationTaskFragment();
+        switch (position) {
+            case TAB_HABIT:
+                return new CreationHabitFragment();
+            case TAB_TASK:
+                return new CreationTaskFragment();
+            default:
+                throw new IllegalArgumentException("Invalid tab position: " + position);
+        }
     }
 
     @Override
     public int getItemCount() {
-        return 2; // We have two tabs
+        return TOTAL_TABS;
     }
 }

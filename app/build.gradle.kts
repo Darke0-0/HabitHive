@@ -44,9 +44,11 @@ dependencies {
     implementation(libs.play.services.auth)
     implementation(libs.facebook.android.sdk)
     implementation(libs.firebase.firestore)
+    implementation(libs.recyclerview)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
     implementation("com.google.firebase:firebase-analytics")
+    implementation("androidx.recyclerview:recyclerview:1.3.2")
 }

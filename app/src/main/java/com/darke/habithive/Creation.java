@@ -16,6 +16,9 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class Creation extends AppCompatActivity {
 
+    private static final int TAB_HABIT = 0;
+    private static final int TAB_TASK = 1;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -40,7 +43,7 @@ public class Creation extends AppCompatActivity {
 
         // Set up TabLayout with ViewPager
         new TabLayoutMediator(tabLayout, viewPager,
-                (tab, position) -> tab.setText(position == 0 ? "Habits" : "Tasks")
+                (tab, position) -> tab.setText(position == TAB_HABIT ? getString(R.string.tab_habits) : getString(R.string.tab_tasks))
         ).attach();
 
     }
