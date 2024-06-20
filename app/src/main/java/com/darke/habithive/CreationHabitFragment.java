@@ -5,8 +5,9 @@ import static android.content.Intent.getIntent;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
-import android.content.DialogInterface;
 import android.content.res.ColorStateList;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -51,6 +52,11 @@ public class CreationHabitFragment extends Fragment {
     }
     private EditText habitNameInput;
 
+    private int[] iconResIds = {R.drawable.ic_finance, R.drawable.ic_health, R.drawable.ic_home,
+            R.drawable.ic_meditation, R.drawable.ic_nutrition,R.drawable.ic_outdoor, R.drawable.ic_quit,
+            R.drawable.ic_run, R.drawable.ic_social, R.drawable.ic_study, R.drawable.ic_work};
+    private RadioGroup habitTypeRadioGroup;
+
     private RadioButton radioDaily, radioWeekly, radioMonthly;
     private LinearLayout dailyDynamicContentContainer, weeklyDynamicContentContainer, monthlyDynamicContentContainer;
 
@@ -86,8 +92,9 @@ public class CreationHabitFragment extends Fragment {
         // Add this line at the beginning of your class
         habitNameInput = view.findViewById(R.id.input_habit_name);
 
-        RadioGroup radioGroupHabitType = view.findViewById(R.id.radioGroupHabitType);
-        radioGroupHabitType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+        habitTypeRadioGroup = view.findViewById(R.id.radioGroupHabitType);
+        addRadioButtonsWithIcons();
+        habitTypeRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @SuppressLint("UseCompatLoadingForDrawables")
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -212,6 +219,27 @@ public class CreationHabitFragment extends Fragment {
 //        });
 
         return view;
+    }
+
+    @SuppressLint("UseCompatLoadingForDrawables")
+    private void addRadioButtonsWithIcons() {
+        for (int iconResId : iconResIds) {
+            RadioButton radioButton = new RadioButton(getContext());
+            radioButton.setButtonDrawable(android.R.color.transparent); // Remove default radio button
+
+            Drawable topDrawable = ContextCompat.getDrawable(getContext(), iconResId);
+            if (topDrawable != null) {
+                topDrawable.setBounds(0, 0, 120, 120);
+                radioButton.setCompoundDrawables(null, topDrawable, null, null);
+            }
+            radioButton.setBackground(getResources().getDrawable(R.color.button_color, null));
+
+            // Add padding and gravity to center the drawable
+            radioButton.setPadding(16, 48, 16, 0);
+            radioButton.setGravity(android.view.Gravity.CENTER);
+
+            habitTypeRadioGroup.addView(radioButton);
+        }
     }
 
     private void clearRadioDMCButtons() {
@@ -441,12 +469,10 @@ public class CreationHabitFragment extends Fragment {
         habitData.put("habit_name", habitName);
 
 //        Type
-//        if (habitType.isEmpty()) {
-//            Toast.makeText(getContext(), "Please select a habit type", Toast.LENGTH_SHORT).show();
-//            return;
-//        }
-
-//        habitData.put("habit_type", habitType);
+        int selectedRadioButtonId = habitTypeRadioGroup.getCheckedRadioButtonId();
+        RadioButton selectedRadioButton = habitTypeRadioGroup.findViewById(selectedRadioButtonId);
+        String habitType = selectedRadioButton.getText().toString();
+        habitData.put("habit_type", habitType);
 
 //        Frequency
         String frequency = "";

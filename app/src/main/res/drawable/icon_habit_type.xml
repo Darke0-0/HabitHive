@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:gravity="center">
+        <bitmap
+            android:src="@drawable/ic_finance"
+            android:gravity="center"
+            android:antialias="true"
+            android:filter="true"
+            android:dither="true" />
+    </item>
+</layer-list>
