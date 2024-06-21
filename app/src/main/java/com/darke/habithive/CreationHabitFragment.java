@@ -32,6 +32,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
@@ -70,7 +71,7 @@ public class CreationHabitFragment extends Fragment {
     private Button addReminderButton;
     private List<String> reminders;
 
-    private RadioButton radioCheckbox, radioCount, radioTimer, radioChecklist;
+    private RadioButton radioCount, radioTimer, radioChecklist;
     private LinearLayout goalResponseContainer;
 
     private FirebaseAuth auth;
@@ -188,7 +189,6 @@ public class CreationHabitFragment extends Fragment {
 
 //       Goal View
         // Initialize views
-        radioCheckbox = view.findViewById(R.id.radio_checkbox);
         radioCount = view.findViewById(R.id.radio_count);
         radioTimer = view.findViewById(R.id.radio_timer);
         radioChecklist = view.findViewById(R.id.radio_checklist);
@@ -200,7 +200,6 @@ public class CreationHabitFragment extends Fragment {
             showGoalInputDialog(v.getId());
         };
 
-        radioCheckbox.setOnClickListener(radioGoalListener);
         radioCount.setOnClickListener(radioGoalListener);
         radioChecklist.setOnClickListener(radioGoalListener);
         radioTimer.setOnClickListener(radioGoalListener);
@@ -210,13 +209,13 @@ public class CreationHabitFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
         auth = FirebaseAuth.getInstance();
 
-//        Button submitButton = view.findViewById(R.id.submit_button);
-//        submitButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                submitHabit();
-//            }
-//        });
+        FloatingActionButton submitButton = view.findViewById(R.id.habit_submit_button);
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                submitHabit();
+            }
+        });
 
         return view;
     }
@@ -232,6 +231,7 @@ public class CreationHabitFragment extends Fragment {
                 topDrawable.setBounds(0, 0, 120, 120);
                 radioButton.setCompoundDrawables(null, topDrawable, null, null);
             }
+            radioButton.setText(iconResId);
             radioButton.setBackground(getResources().getDrawable(R.color.button_color, null));
 
             // Add padding and gravity to center the drawable
@@ -330,7 +330,6 @@ public class CreationHabitFragment extends Fragment {
     }
 
     private void clearRadioGoalButtons() {
-        radioCheckbox.setChecked(false);
         radioCount.setChecked(false);
         radioTimer.setChecked(false);
         radioChecklist.setChecked(false);
@@ -342,14 +341,35 @@ public class CreationHabitFragment extends Fragment {
         LayoutInflater inflater = getLayoutInflater();
         View dialogView;
 
-        if (goalType == R.id.radio_checkbox) {
-            dialogView = inflater.inflate(R.layout.dialog_goal_checkbox, null);
+        if (goalType == R.id.radio_checklist) {
+            dialogView = inflater.inflate(R.layout.dialog_goal_checklist, null);
+
+            // Handle checklist item addition
+            EditText inputChecklistItem = dialogView.findViewById(R.id.input_goal_checklist_item);
+            Button addItemButton = dialogView.findViewById(R.id.add_checklist_item_button);
+            LinearLayout checklistContainer = dialogView.findViewById(R.id.checklist_items_container);
+
+            addItemButton.setOnClickListener(v -> {
+                String itemText = inputChecklistItem.getText().toString().trim();
+                if (!itemText.isEmpty()) {
+                    addChecklistItem(itemText, checklistContainer);
+                    inputChecklistItem.setText("");
+                }
+            });
+
             builder.setView(dialogView)
-                    .setTitle("Checkbox Goal")
+                    .setTitle("Checklist Goal")
                     .setPositiveButton("OK", (dialog, which) -> {
-                        EditText editTextDescription = dialogView.findViewById(R.id.goal_checkbox_description);
-                        String description = editTextDescription.getText().toString().trim();
-                        addGoalResponse("Checkbox Goal: " + description);
+                        StringBuilder checklistItems = new StringBuilder("Checklist Goal:\n");
+                        for (int i = 0; i < checklistContainer.getChildCount(); i++) {
+                            View itemView = checklistContainer.getChildAt(i);
+                            if (itemView instanceof LinearLayout) {
+                                LinearLayout itemLayout = (LinearLayout) itemView;
+                                TextView itemTextView = (TextView) itemLayout.getChildAt(0); // Assuming item text is the first child
+                                checklistItems.append("- ").append(itemTextView.getText().toString()).append("\n");
+                            }
+                        }
+                        addGoalResponse(checklistItems.toString());
                     })
                     .setNegativeButton("Cancel", null);
         } else if (goalType == R.id.radio_count) {
@@ -380,37 +400,6 @@ public class CreationHabitFragment extends Fragment {
                         int hour = timePicker.getHour();
                         int minute = timePicker.getMinute();
                         addGoalResponse("Timer Goal: " + timerType + " " + String.format("%02d:%02d", hour, minute) + " ");
-                    })
-                    .setNegativeButton("Cancel", null);
-        } else if (goalType == R.id.radio_checklist) {
-            dialogView = inflater.inflate(R.layout.dialog_goal_checklist, null);
-
-            // Handle checklist item addition
-            EditText inputChecklistItem = dialogView.findViewById(R.id.input_goal_checklist_item);
-            Button addItemButton = dialogView.findViewById(R.id.add_checklist_item_button);
-            LinearLayout checklistContainer = dialogView.findViewById(R.id.checklist_items_container);
-
-            addItemButton.setOnClickListener(v -> {
-                String itemText = inputChecklistItem.getText().toString().trim();
-                if (!itemText.isEmpty()) {
-                    addChecklistItem(itemText, checklistContainer);
-                    inputChecklistItem.setText("");
-                }
-            });
-
-            builder.setView(dialogView)
-                    .setTitle("Checklist Goal")
-                    .setPositiveButton("OK", (dialog, which) -> {
-                        StringBuilder checklistItems = new StringBuilder("Checklist Goal:\n");
-                        for (int i = 0; i < checklistContainer.getChildCount(); i++) {
-                            View itemView = checklistContainer.getChildAt(i);
-                            if (itemView instanceof LinearLayout) {
-                                LinearLayout itemLayout = (LinearLayout) itemView;
-                                TextView itemTextView = (TextView) itemLayout.getChildAt(0); // Assuming item text is the first child
-                                checklistItems.append("- ").append(itemTextView.getText().toString()).append("\n");
-                            }
-                        }
-                        addGoalResponse(checklistItems.toString());
                     })
                     .setNegativeButton("Cancel", null);
         }
@@ -469,6 +458,10 @@ public class CreationHabitFragment extends Fragment {
         habitData.put("habit_name", habitName);
 
 //        Type
+        if (habitTypeRadioGroup.getCheckedRadioButtonId() == -1) {
+            Toast.makeText(getContext(), "Please select a habit type", Toast.LENGTH_SHORT).show();
+            return;
+        }
         int selectedRadioButtonId = habitTypeRadioGroup.getCheckedRadioButtonId();
         RadioButton selectedRadioButton = habitTypeRadioGroup.findViewById(selectedRadioButtonId);
         String habitType = selectedRadioButton.getText().toString();
@@ -477,7 +470,6 @@ public class CreationHabitFragment extends Fragment {
 //        Frequency
         String frequency = "";
         if (radioDaily.isChecked()) frequency = "Daily";
-        if (radioWeekly.isChecked()) frequency = "Weekly";
         if (radioMonthly.isChecked()) frequency = "Monthly";
 
         habitData.put("frequency", frequency);
@@ -487,27 +479,73 @@ public class CreationHabitFragment extends Fragment {
             for (CheckBox dayCheckBox : day_checkBoxes) {
                 daysOfWeek.add(dayCheckBox.isChecked() ? 1 : 0);
             }
+            if (daysOfWeek.stream().noneMatch(day -> day == 1)) {
+                Toast.makeText(getContext(), "Please select at least one day of the week",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
             habitData.put("days_of_week", daysOfWeek);
         }else if (frequency.equals("Monthly")) {
             // Add selected dates to habitData
             // You can add more complex logic to handle monthly habits if needed
             ArrayList<Integer> dayOfMonth = CalendarAdapter.getSelectedDay(); // Assuming you have a method to get the selected day
+            if (dayOfMonth.isEmpty()) {
+                Toast.makeText(getContext(), "Please select at least one day of the month",
+                        Toast.LENGTH_SHORT).show();
+                return;
+            }
             habitData.put("day_of_month", dayOfMonth);
         }
 
         // Reminder
-        int childCount = reminderContainer.getChildCount();
-        for (int i = 0; i < childCount; i++) {
+        for (int i = 0; i < reminderContainer.getChildCount(); i++) {
             View childView = reminderContainer.getChildAt(i);
-            // Assuming each child is an EditText for simplicity
-            EditText reminderEditText = (EditText) childView;
-            String reminderTime = reminderEditText.getText().toString().trim();
+            TextView reminderTextView = (TextView) ((LinearLayout) childView).getChildAt(0);
+            String reminderTime = reminderTextView.getText().toString().trim();
             if (!reminderTime.isEmpty()) {
                 habitData.put("reminder_" + i, reminderTime);
             }
         }
+
 //        Goal
-//        TODO
+        String goalType = "";
+        for (int i = 0; i < goalResponseContainer.getChildCount(); i++) {
+            View childView = goalResponseContainer.getChildAt(i);
+            if (childView instanceof TextView) {
+                String goalResponse = ((TextView) childView).getText().toString().trim();
+                habitData.put("goal_response_" + i, goalResponse);
+                if (goalResponse.contains("Checklist Goal")) {
+                    goalType = "Checklist";
+                } else if (goalResponse.contains("Count Goal")) {
+                    goalType = "Count";
+                } else if (goalResponse.contains("Timer Goal")) {
+                    goalType = "Timer";
+                }
+            }
+        }
+        if (goalType.isEmpty()) {
+            Toast.makeText(getContext(), "Please add a goal response",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        habitData.put("goal_type", goalType);
+
+        // Collect goal responses
+        if (goalResponseContainer.getChildCount() == 0) {
+            Toast.makeText(getContext(), "Please add at least one goal response",
+                    Toast.LENGTH_SHORT).show();
+            return;
+        }
+        for (int i = 0; i < goalResponseContainer.getChildCount(); i++) {
+            View childView = goalResponseContainer.getChildAt(i);
+            if (childView instanceof TextView) {
+                String goalResponse = ((TextView) childView).getText().toString().trim();
+                habitData.put("goal_response_" + i, goalResponse);
+            }
+        }
+
+        Toast.makeText(getContext(), "Completed",
+                Toast.LENGTH_SHORT).show();
 
         db.collection("users").document(user.getUid()).collection("habits")
                 .add(habitData)

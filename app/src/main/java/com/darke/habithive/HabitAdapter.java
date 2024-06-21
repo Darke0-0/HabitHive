@@ -16,10 +16,10 @@ import java.util.List;
 
 public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHolder> {
 
-    private ArrayList<Habit> habitList;
+    private ArrayList<HabitClass> habitList;
 
-    public HabitAdapter(List<Habit> habitList) {
-        this.habitList = (ArrayList<Habit>) habitList;
+    public HabitAdapter(List<HabitClass> habitList) {
+        this.habitList = (ArrayList<HabitClass>) habitList;
     }
 
     @NonNull
@@ -31,7 +31,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
     @Override
     public void onBindViewHolder(@NonNull HabitViewHolder holder, int position) {
-        Habit habit = habitList.get(position);
+        HabitClass habit = habitList.get(position);
 
 
         // Set the habit name as the button text

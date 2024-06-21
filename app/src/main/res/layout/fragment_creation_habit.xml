@@ -321,15 +321,16 @@
             android:paddingEnd="16dp">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
                 android:orientation="horizontal">
 
                 <RadioButton
-                    android:id="@+id/radio_checkbox"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/radio_checklist"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Checkbox"
+                    android:text="Checklist"
                     android:button="@null"
                     android:gravity="center"
                     android:padding="12dp"
@@ -339,7 +340,7 @@
 
                 <RadioButton
                     android:id="@+id/radio_count"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Counter"
                     android:button="@null"
@@ -351,7 +352,7 @@
 
                     <RadioButton
                     android:id="@+id/radio_timer"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="Timer"
                     android:button="@null"
@@ -361,17 +362,6 @@
                     android:background="@drawable/radio_button_background"
                     style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
 
-                <RadioButton
-                    android:id="@+id/radio_checklist"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Checklist"
-                    android:button="@null"
-                    android:gravity="center"
-                    android:padding="12dp"
-                    android:textColor="@color/primaryTextColor"
-                    android:background="@drawable/radio_button_background"
-                    style="@style/Widget.AppCompat.Button.Borderless.Colored"/>
             </LinearLayout>
 
         </HorizontalScrollView>
@@ -390,7 +380,7 @@
 
     <!-- Floating Action Button -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_submit"
+        android:id="@+id/habit_submit_button"
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_margin="16dp"

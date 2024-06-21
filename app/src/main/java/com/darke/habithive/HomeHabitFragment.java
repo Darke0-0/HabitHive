@@ -34,7 +34,7 @@ public class HomeHabitFragment extends Fragment {
 
     private FirebaseFirestore db;
     private FirebaseAuth auth;
-    private ArrayList<Habit> habitList = new ArrayList<>();
+    private ArrayList<HabitClass> habitList = new ArrayList<>();
     private RecyclerView recyclerView;
     private HabitAdapter habitAdapter;
 
@@ -68,7 +68,7 @@ public class HomeHabitFragment extends Fragment {
                         if (task.isSuccessful()) {
                             habitList.clear();
                             for (QueryDocumentSnapshot document : task.getResult()) {
-                                Habit habit = document.toObject(Habit.class);
+                                HabitClass habit = document.toObject(HabitClass.class);
                                 habitList.add(habit);
                             }
                             habitAdapter.notifyDataSetChanged();
