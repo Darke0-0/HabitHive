@@ -27,6 +27,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_1_8
         targetCompatibility = JavaVersion.VERSION_1_8
     }
+    buildFeatures {
+        viewBinding = true
+    }
 
     tasks.withType<JavaCompile> {
         options.compilerArgs.add("-Xlint:deprecation")
@@ -45,6 +48,8 @@ dependencies {
     implementation(libs.facebook.android.sdk)
     implementation(libs.firebase.firestore)
     implementation(libs.recyclerview)
+    implementation(libs.navigation.fragment)
+    implementation(libs.navigation.ui)
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
