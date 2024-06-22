@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 
 import java.util.ArrayList;
+import java.util.Set;
 
 public class HomeHabitFragment extends Fragment {
 
@@ -62,19 +64,17 @@ public class HomeHabitFragment extends Fragment {
         db.collection("users").document(userId)
                 .collection("habits")
                 .get()
-                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                        if (task.isSuccessful()) {
-                            habitList.clear();
-                            for (QueryDocumentSnapshot document : task.getResult()) {
-                                HabitClass habit = document.toObject(HabitClass.class);
-                                habitList.add(habit);
-                            }
-                            habitAdapter.notifyDataSetChanged();
-                        } else {
-                            Toast.makeText(getContext(), "Error getting habits", Toast.LENGTH_SHORT).show();
+                .addOnCompleteListener(habitTask -> {
+                    if (habitTask.isSuccessful()) {
+                        habitList.clear();
+                        for (QueryDocumentSnapshot habitDocument : habitTask.getResult()) {
+                            HabitClass habit = habitDocument.toObject(HabitClass.class);
+                            Toast.makeText(getContext(), habit.getHabitName(), Toast.LENGTH_SHORT).show();
+                            habitList.add(habit);
                         }
+                        habitAdapter.notifyDataSetChanged();
+                    } else {
+                        Toast.makeText(getContext(), "Error getting habits", Toast.LENGTH_SHORT).show();
                     }
                 });
     }

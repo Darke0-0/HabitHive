@@ -1,13 +1,11 @@
 package com.darke.habithive;
 
-import static android.content.Intent.getIntent;
-
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.TimePickerDialog;
+import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -53,7 +51,7 @@ public class CreationHabitFragment extends Fragment {
     }
     private EditText habitNameInput;
 
-    private int[] iconResIds = {R.drawable.ic_finance, R.drawable.ic_health, R.drawable.ic_home,
+    private final int[] iconResIds = {R.drawable.ic_finance, R.drawable.ic_health, R.drawable.ic_home,
             R.drawable.ic_meditation, R.drawable.ic_nutrition,R.drawable.ic_outdoor, R.drawable.ic_quit,
             R.drawable.ic_run, R.drawable.ic_social, R.drawable.ic_study, R.drawable.ic_work};
     private RadioGroup habitTypeRadioGroup;
@@ -86,8 +84,8 @@ public class CreationHabitFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_creation_habit, container, false);
 
-        String email = requireActivity().getIntent().getStringExtra("email");
-        String name = requireActivity().getIntent().getStringExtra("name");
+        String email = getActivity().getIntent().getStringExtra("email");
+        String name = getActivity().getIntent().getStringExtra("name");
         Toast.makeText(getContext(), String.format("Email: %s, Name: %s", email, name), Toast.LENGTH_SHORT).show();
 
         // Add this line at the beginning of your class
@@ -446,8 +444,8 @@ public class CreationHabitFragment extends Fragment {
             Toast.makeText(getContext(), "User not authenticated", Toast.LENGTH_SHORT).show();
             return;
         }
-        habitData.put("user_id", user.getUid());
-        habitData.put("created_at", FieldValue.serverTimestamp());
+        habitData.put("userId", user.getUid());
+        habitData.put("createdAt", FieldValue.serverTimestamp());
 
 //        Name
         String habitName = habitNameInput.getText().toString().trim();
@@ -455,7 +453,7 @@ public class CreationHabitFragment extends Fragment {
             Toast.makeText(getContext(), "Please enter a habit name", Toast.LENGTH_SHORT).show();
             return;
         }
-        habitData.put("habit_name", habitName);
+        habitData.put("habitName", habitName);
 
 //        Type
         if (habitTypeRadioGroup.getCheckedRadioButtonId() == -1) {
@@ -465,7 +463,7 @@ public class CreationHabitFragment extends Fragment {
         int selectedRadioButtonId = habitTypeRadioGroup.getCheckedRadioButtonId();
         RadioButton selectedRadioButton = habitTypeRadioGroup.findViewById(selectedRadioButtonId);
         String habitType = selectedRadioButton.getText().toString();
-        habitData.put("habit_type", habitType);
+        habitData.put("habitType", habitType);
 
 //        Frequency
         String frequency = "";
@@ -484,7 +482,7 @@ public class CreationHabitFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 return;
             }
-            habitData.put("days_of_week", daysOfWeek);
+            habitData.put("daysOfWeek", daysOfWeek);
         }else if (frequency.equals("Monthly")) {
             // Add selected dates to habitData
             // You can add more complex logic to handle monthly habits if needed
@@ -494,18 +492,20 @@ public class CreationHabitFragment extends Fragment {
                         Toast.LENGTH_SHORT).show();
                 return;
             }
-            habitData.put("day_of_month", dayOfMonth);
+            habitData.put("dayOfMonth", dayOfMonth);
         }
 
         // Reminder
+        ArrayList<String> remindersList = new ArrayList<>();
         for (int i = 0; i < reminderContainer.getChildCount(); i++) {
             View childView = reminderContainer.getChildAt(i);
             TextView reminderTextView = (TextView) ((LinearLayout) childView).getChildAt(0);
             String reminderTime = reminderTextView.getText().toString().trim();
             if (!reminderTime.isEmpty()) {
-                habitData.put("reminder_" + i, reminderTime);
+                remindersList.add(reminderTime);
             }
         }
+        habitData.put("reminders", remindersList);
 
 //        Goal
         String goalType = "";
@@ -513,7 +513,6 @@ public class CreationHabitFragment extends Fragment {
             View childView = goalResponseContainer.getChildAt(i);
             if (childView instanceof TextView) {
                 String goalResponse = ((TextView) childView).getText().toString().trim();
-                habitData.put("goal_response_" + i, goalResponse);
                 if (goalResponse.contains("Checklist Goal")) {
                     goalType = "Checklist";
                 } else if (goalResponse.contains("Count Goal")) {
@@ -528,7 +527,7 @@ public class CreationHabitFragment extends Fragment {
                     Toast.LENGTH_SHORT).show();
             return;
         }
-        habitData.put("goal_type", goalType);
+        habitData.put("goalType", goalType);
 
         // Collect goal responses
         if (goalResponseContainer.getChildCount() == 0) {
@@ -536,20 +535,26 @@ public class CreationHabitFragment extends Fragment {
                     Toast.LENGTH_SHORT).show();
             return;
         }
+
+        ArrayList<String> goalResponseList = new ArrayList<>();
         for (int i = 0; i < goalResponseContainer.getChildCount(); i++) {
             View childView = goalResponseContainer.getChildAt(i);
             if (childView instanceof TextView) {
                 String goalResponse = ((TextView) childView).getText().toString().trim();
-                habitData.put("goal_response_" + i, goalResponse);
+                goalResponseList.add(goalResponse);
             }
         }
-
-        Toast.makeText(getContext(), "Completed",
-                Toast.LENGTH_SHORT).show();
+        habitData.put("goalResponse", goalResponseList);
 
         db.collection("users").document(user.getUid()).collection("habits")
                 .add(habitData)
-                .addOnSuccessListener(documentReference -> Toast.makeText(getContext(), "Habit saved successfully", Toast.LENGTH_SHORT).show())
+                .addOnSuccessListener(documentReference -> {
+                    Toast.makeText(getContext(), "Habit added successfully", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(getActivity(), Habit.class);
+                    intent.putExtra("HABIT_ID", documentReference.getId());
+                    startActivity(intent);
+                    getActivity().finish();
+                })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Error saving habit", Toast.LENGTH_SHORT).show());
     }
 }

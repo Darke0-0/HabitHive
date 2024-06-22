@@ -1,24 +1,32 @@
 package com.darke.habithive;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.google.firebase.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
 
-public class HabitClass {
-    private String name;
-    private String userId;
-    private Date createdAt;
-    private String habitType;
-    private String frequency;
+public class HabitClass implements Parcelable {
+    private Timestamp createdAt;
     private ArrayList<Integer> daysOfWeek;
     private ArrayList<Integer> dayOfMonth;
+    private String frequency;
+    private ArrayList<String> goalResponse;
+    private String goalType;
+    private String habitName;
+    private String habitType;
     private ArrayList<String> reminders;
+    private String userId;
 
     // Required empty constructor
     public HabitClass() {}
 
     // Constructor with all fields
-    public HabitClass(String name,String userId ,Date createdAt, String habitType, String frequency, ArrayList<Integer> daysOfWeek, ArrayList<Integer> dayOfMonth, ArrayList<String> reminders) {
-        this.name = name;
+    public HabitClass(String habitName,String userId ,Timestamp createdAt, String habitType, String frequency,
+                      ArrayList<Integer> daysOfWeek, ArrayList<Integer> dayOfMonth, ArrayList<String> reminders,
+                      String goalType, ArrayList<String> goalResponse) {
+        this.habitName = habitName;
         this.userId = userId;
         this.createdAt = createdAt;
         this.habitType = habitType;
@@ -26,15 +34,101 @@ public class HabitClass {
         this.daysOfWeek = daysOfWeek;
         this.dayOfMonth = dayOfMonth;
         this.reminders = reminders;
+        this.goalType = goalType;
+        this.goalResponse = goalResponse;
     }
+
+    // Parcelable implementation
+    protected HabitClass(Parcel in) {
+        habitName = in.readString();
+        userId = in.readString();
+        createdAt = in.readParcelable(Timestamp.class.getClassLoader());
+        habitType = in.readString();
+        frequency = in.readString();
+        goalType = in.readString();
+        if (in.readByte() == 0x01) {
+            daysOfWeek = new ArrayList<>();
+            in.readList(daysOfWeek, Integer.class.getClassLoader());
+        } else {
+            daysOfWeek = null;
+        }
+        if (in.readByte() == 0x01) {
+            dayOfMonth = new ArrayList<>();
+            in.readList(dayOfMonth, Integer.class.getClassLoader());
+        } else {
+            dayOfMonth = null;
+        }
+        if (in.readByte() == 0x01) {
+            reminders = new ArrayList<>();
+            in.readList(reminders, String.class.getClassLoader());
+        } else {
+            reminders = null;
+        }
+        if (in.readByte() == 0x01) {
+            goalResponse = new ArrayList<>();
+            in.readList(goalResponse, String.class.getClassLoader());
+        } else {
+            goalResponse = null;
+        }
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeString(habitName);
+        dest.writeString(userId);
+        dest.writeParcelable(createdAt, flags);
+        dest.writeString(habitType);
+        dest.writeString(frequency);
+        if (daysOfWeek == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(daysOfWeek);
+        }
+        if (dayOfMonth == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(dayOfMonth);
+        }
+        if (reminders == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(reminders);
+        }
+        if (goalResponse == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(goalResponse);
+        }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Parcelable.Creator<HabitClass> CREATOR = new Parcelable.Creator<HabitClass>() {
+        @Override
+        public HabitClass createFromParcel(Parcel in) {
+            return new HabitClass(in);
+        }
+
+        @Override
+        public HabitClass[] newArray(int size) {
+            return new HabitClass[size];
+        }
+    };
 
     // Getters and setters
-    public String getName() {
-        return name;
+    public String getHabitName() {
+        return habitName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setHabitName(String habitName) {
+        this.habitName = habitName;
     }
 
     public String getUserId() {
@@ -45,11 +139,11 @@ public class HabitClass {
         this.userId = userId;
     }
 
-    public Date getCreatedAt() {
+    public Timestamp getCreatedAt() {
         return createdAt;
     }
 
-    public void setCreatedAt(Date createdAt) {
+    public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
     }
 
@@ -93,5 +187,21 @@ public class HabitClass {
 
     public void setReminders(ArrayList<String> reminders) {
         this.reminders = reminders;
+    }
+
+    public String getGoalType() {
+        return goalType;
+    }
+
+    public void setGoalType(String goalType) {
+        this.goalType = goalType;
+    }
+
+    public ArrayList<String> getGoalResponse() {
+        return goalResponse;
+    }
+
+    public void setGoalResponse(ArrayList<String> goalResponse) {
+        this.goalResponse = goalResponse;
     }
 }

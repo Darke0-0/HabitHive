@@ -1,6 +1,7 @@
 package com.darke.habithive;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.ImageView;
@@ -8,8 +9,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.firebase.firestore.FirebaseFirestore;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
+
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Habit extends AppCompatActivity {
 
@@ -23,6 +28,12 @@ public class Habit extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_habit);
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+            v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
+            return insets;
+        });
 
         habitNameTextView = findViewById(R.id.habit_name);
         habitTypeIconImageView = findViewById(R.id.habit_type_icon);
@@ -31,10 +42,13 @@ public class Habit extends AppCompatActivity {
         deleteHabitButton = findViewById(R.id.delete_habit_button);
         db = FirebaseFirestore.getInstance();
 
-        // Retrieve habit details passed via Intent
-        String habitId = getIntent().getStringExtra("HABIT_ID");
-        if (habitId != null) {
-            loadHabitDetails(habitId);
+        // Retrieve the HabitClass object from the Intent
+        HabitClass habit = getIntent().getParcelableExtra("habit");
+        if (habit != null) {
+            // Use the habit object
+            habitNameTextView.setText(habit.getHabitName());
+            Toast.makeText(this, "Habit name: " + habit.getHabitName(), Toast.LENGTH_SHORT).show();
+            Log.d("NextActivity", "Habit name: " + habit.getHabitName());
         }
 
         editHabitButton.setOnClickListener(v -> {
@@ -45,43 +59,13 @@ public class Habit extends AppCompatActivity {
 
         deleteHabitButton.setOnClickListener(v -> {
             // Handle delete habit action
-            deleteHabit(habitId);
+
         });
 
         // Highlight calendar dates (this is a placeholder for actual implementation)
         calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
             // Handle date selection, e.g., display task completion status
         });
-    }
-
-    private void loadHabitDetails(String habitId) {
-        db.collection("users").document(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                .collection("habits").document(habitId)
-                .get()
-                .addOnSuccessListener(documentSnapshot -> {
-                    if (documentSnapshot.exists()) {
-                        String habitName = documentSnapshot.getString("name");
-                        String habitType = documentSnapshot.getString("type");
-                        habitNameTextView.setText(habitName);
-
-                        // Set habit type icon based on habit type
-                        if (habitType != null) {
-                            switch (habitType) {
-                                case "Type 1":
-                                    habitTypeIconImageView.setImageResource(R.drawable.icon_type1);
-                                    break;
-                                case "Type 2":
-                                    habitTypeIconImageView.setImageResource(R.drawable.icon_type2);
-                                    break;
-                                // Add more cases for other habit types
-                            }
-                        }
-
-                        // Load and highlight the calendar with progress data
-                        // Placeholder: highlight dates based on user progress
-                    }
-                })
-                .addOnFailureListener(e -> Toast.makeText(Habit.this, "Failed to load habit details", Toast.LENGTH_SHORT).show());
     }
 
     private void deleteHabit(String habitId) {

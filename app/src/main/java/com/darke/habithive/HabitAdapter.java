@@ -1,11 +1,16 @@
 package com.darke.habithive;
 
+import static androidx.core.content.ContextCompat.startActivity;
+
+import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -33,21 +38,19 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     public void onBindViewHolder(@NonNull HabitViewHolder holder, int position) {
         HabitClass habit = habitList.get(position);
 
-
         // Set the habit name as the button text
-        holder.nameButton.setText(habit.getName());
+        holder.nameButton.setText(habit.getHabitName());
 
         // Set the habit type icon as the button drawable end
         int habitTypeIconResId = getHabitTypeIcon(habit.getHabitType()); // Replace this with your method to get the icon resource id based on the habit type
         Drawable habitTypeIcon = ContextCompat.getDrawable(holder.nameButton.getContext(), habitTypeIconResId);
         holder.nameButton.setCompoundDrawablesWithIntrinsicBounds(null, null, habitTypeIcon, null);
 
-        holder.habitTypeTextView.setText(habit.getHabitType());
-        holder.frequencyTextView.setText(habit.getFrequency());
-        holder.createdAtTextView.setText(habit.getCreatedAt().toString());
-        holder.daysOfWeekTextView.setText(habit.getDaysOfWeek().toString());
-        holder.dayOfMonthTextView.setText(habit.getDayOfMonth().toString());
-        holder.remindersTextView.setText(habit.getReminders().toString());
+        holder.nameButton.setOnClickListener(v -> {
+            Intent intent = new Intent(v.getContext(), Habit.class);
+            intent.putExtra("habit", habit);
+            startActivity(v.getContext(), intent, null);
+        });
     }
 
     @Override
@@ -71,6 +74,9 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     }
 
     private int getHabitTypeIcon(String habitType) {
+        if (habitType == null) {
+            return R.drawable.ic_outdoor;
+        }
         switch (habitType) {
             case "finance":
                 return R.drawable.ic_finance;
@@ -95,7 +101,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
             case "work":
                 return R.drawable.ic_work;
             default:
-                return R.drawable.habithivelogo;
+                return R.drawable.ic_outdoor;
         }
     }
 }

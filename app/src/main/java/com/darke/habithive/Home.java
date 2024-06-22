@@ -43,8 +43,6 @@ public class Home extends AppCompatActivity {
         // Retrieve user details from intent
         String email = getIntent().getStringExtra("email");
         String name = getIntent().getStringExtra("name");
-        welcomeTextView.setText("Welcome, " + name + "! (" + email + ")");
-        Toast.makeText(Home.this, String.format("Email: %s, Name: %s", email, name), Toast.LENGTH_SHORT).show();
 
         // Set up ViewPager with an adapter
         HomeViewPagerAdapter adapter = new HomeViewPagerAdapter(this);
