@@ -31,7 +31,7 @@ public class Startup extends AppCompatActivity {
             @Override
             public void run() {
                 // After loading, start the login activity
-                Intent intent = new Intent(Startup.this, Login.class);
+                Intent intent = new Intent(Startup.this, User.class);
                 startActivity(intent);
                 finish();
             }

@@ -34,7 +34,6 @@ android {
     tasks.withType<JavaCompile> {
         options.compilerArgs.add("-Xlint:deprecation")
     }
-
 }
 
 dependencies {
@@ -50,7 +49,14 @@ dependencies {
     implementation(libs.recyclerview)
     implementation(libs.navigation.fragment)
     implementation(libs.navigation.ui)
+    implementation(libs.fragment.testing)
     testImplementation(libs.junit)
+    testImplementation(libs.junit.v113)
+    testImplementation(libs.espresso.core.v340)
+    testImplementation(libs.truth)
+    testImplementation(libs.mockito.core)
+    androidTestImplementation(libs.mockito.android)
+    androidTestImplementation(libs.truth)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
     implementation(platform("com.google.firebase:firebase-bom:33.1.0"))
