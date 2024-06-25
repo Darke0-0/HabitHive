@@ -58,6 +58,12 @@ public class HomeHabitFragment extends Fragment {
         return view;
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        loadHabits();
+    }
+
     private void loadHabits() {
         String userId = auth.getCurrentUser().getUid();
 

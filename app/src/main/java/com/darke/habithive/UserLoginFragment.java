@@ -1,12 +1,16 @@
 package com.darke.habithive;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import androidx.annotation.NonNull;
 import android.os.Bundle;
+import android.text.method.HideReturnsTransformationMethod;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.text.TextUtils;
 import android.view.ViewGroup;
@@ -32,8 +36,11 @@ public class UserLoginFragment extends Fragment {
     EditText password;
     Button loginBtn;
     CheckBox rememberMeCheckBox;
+    Button forgetPassword;
     private SharedPreferences sharedPreferences;
+    private boolean isPasswordVisible = false;
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -44,11 +51,26 @@ public class UserLoginFragment extends Fragment {
         db = FirebaseFirestore.getInstance();
 
         email = view.findViewById(R.id.email);
-        password = view.findViewById(R.id.password);
+        password = view.findViewById(R.id.password_edit_text);
         rememberMeCheckBox = view.findViewById(R.id.remember_me);
-
+        forgetPassword = view.findViewById(R.id.forgot_password);
         loginBtn = view.findViewById(R.id.loginBtn);
         sharedPreferences = requireActivity().getSharedPreferences("HabitHivePrefs", Context.MODE_PRIVATE);
+
+        email.setTranslationX(800);
+        password.setTranslationX(800);
+        forgetPassword.setTranslationX(800);
+        loginBtn.setTranslationY(0);
+
+        email.setAlpha(0);
+        password.setAlpha(0);
+        forgetPassword.setAlpha(0);
+        loginBtn.setAlpha(0);
+
+        email.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(300).start();
+        password.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(500).start();
+        forgetPassword.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(500).start();
+        loginBtn.animate().translationY(0).alpha(1).setDuration(1000).setStartDelay(700).start();
 
         // Load saved email if "Remember Me" was checked
         loadLogin();
@@ -67,33 +89,20 @@ public class UserLoginFragment extends Fragment {
                 }
             }
         });
+
+        // Toggle password visibility
+        password.setOnTouchListener((v, event) -> {
+            final int DRAWABLE_RIGHT = 2;
+            if (event.getAction() == MotionEvent.ACTION_UP) {
+                if (event.getRawX() >= (password.getRight() - password.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
+                    togglePasswordVisibility();
+                    return true;
+                }
+            }
+            return false;
+        });
         return view;
     }
-
-
-//    @Override
-//    public void onStart() {
-//        super.onStart();
-//        // Check if user is signed in (non-null) and update UI accordingly.
-//        FirebaseUser currentUser = mAuth.getCurrentUser();
-//        if (currentUser != null) {
-//            // User is signed in, navigate to the next activity.
-//            String userId = currentUser.getUid();
-//            Log.e("check", "onStart: " + db.collection("users").document(userId).collection("info").toString());
-//            db.collection("users").document(userId)
-//                    .collection("info")
-//                    .get()
-//                    .addOnCompleteListener(infoTask -> {
-//                        if (infoTask.isSuccessful()) {
-//                            Intent intent = new Intent(getContext(), Home.class);
-//                            startActivity(intent);
-//                            requireActivity().finish();
-//                        } else {
-//                            Toast.makeText(getContext(), "Failed to fetch user info", Toast.LENGTH_SHORT).show();
-//                        }
-//                    });
-//        }
-//    }
 
     public void onLogin(){
         final String email = this.email.getText().toString();
@@ -165,4 +174,18 @@ public class UserLoginFragment extends Fragment {
     }
     //  Remember Me
 
+    private void togglePasswordVisibility() {
+        if (isPasswordVisible) {
+            // Hide Password
+            password.setTransformationMethod(PasswordTransformationMethod.getInstance());
+            password.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.visibility_off_24px, 0);
+        } else {
+            // Show Password
+            password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
+            password.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.visibility_24px, 0);
+        }
+        isPasswordVisible = !isPasswordVisible;
+        // Move the cursor to the end of the text
+        password.setSelection(password.getText().length());
+    }
 }

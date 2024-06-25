@@ -23,16 +23,15 @@
         app:layout_constraintVertical_bias=".3"
         app:layout_constraintWidth_percent=".8" />
 
-    <EditText
+
+    <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/password"
-        android:layout_width="0dp"
-        android:textColorHint="@color/secondaryTextColor"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:hint="Password"
-        android:paddingLeft="20dp"
+        android:textColorHint="@color/secondaryTextColor"
         android:textColor="@color/secondaryTextColor"
         android:paddingTop="10dp"
+        android:paddingLeft="20dp"
         android:paddingRight="20dp"
         android:paddingBottom="10dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -41,7 +40,27 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/email"
         app:layout_constraintVertical_bias="0"
-        app:layout_constraintWidth_percent=".8" />
+        app:layout_constraintWidth_percent=".8">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:id="@+id/password_edit_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Password"
+            android:inputType="textPassword"
+            android:drawableEnd="@drawable/visibility_off_24px" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <CheckBox
+        android:id="@+id/remember_me"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Remember Me"
+        android:textColor="@color/secondaryTextColor"
+        app:layout_constraintTop_toBottomOf="@id/password"
+        app:layout_constraintStart_toStartOf="parent"
+        android:layout_marginTop="5dp"
+        android:layout_marginStart="40dp" />
 
     <Button
         android:id="@+id/loginBtn"
@@ -56,18 +75,6 @@
         app:layout_constraintTop_toBottomOf="@+id/password"
         app:layout_constraintVertical_bias=".6"
         app:layout_constraintWidth_percent=".7" />
-
-
-    <CheckBox
-        android:id="@+id/remember_me"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Remember Me"
-        android:textColor="@color/secondaryTextColor"
-        app:layout_constraintTop_toBottomOf="@id/password"
-        app:layout_constraintStart_toStartOf="parent"
-        android:layout_marginTop="5dp"
-        android:layout_marginStart="40dp" />
 
     <Button
         android:layout_width="wrap_content"

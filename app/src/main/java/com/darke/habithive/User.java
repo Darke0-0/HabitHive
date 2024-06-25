@@ -31,6 +31,7 @@ public class User extends AppCompatActivity {
         });
 
         TabLayout tabLayout = findViewById(R.id.tab_layout);
+        tabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -43,6 +44,11 @@ public class User extends AppCompatActivity {
 
         UserAdapter adapter = new UserAdapter(this);
         viewPager.setAdapter(adapter);
+
+        facebook.setTranslationY(300);
+        google.setTranslationY(300);
+        twitter.setTranslationY(300);
+        tabLayout.setTranslationY(300);
 
         facebook.setAlpha(alpha);
         google.setAlpha(alpha);
