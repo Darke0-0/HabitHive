@@ -551,7 +551,8 @@ public class CreationHabitFragment extends Fragment {
                 .addOnSuccessListener(documentReference -> {
                     Toast.makeText(getContext(), "Habit added successfully", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(getActivity(), Habit.class);
-                    intent.putExtra("HABIT_ID", documentReference.getId());
+                    String habitId = documentReference.getId();
+                    documentReference.update("habitId", habitId);
                     startActivity(intent);
                     getActivity().finish();
                 })

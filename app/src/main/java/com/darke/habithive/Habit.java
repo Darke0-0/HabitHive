@@ -46,7 +46,7 @@ public class Habit extends AppCompatActivity {
         HabitClass habit = getIntent().getParcelableExtra("habit");
         if (habit != null) {
             // Use the habit object
-            habitNameTextView.setText(habit.getHabitId());
+            habitNameTextView.setText(habit.getHabitName());
         }
 
         editHabitButton.setOnClickListener(v -> {
