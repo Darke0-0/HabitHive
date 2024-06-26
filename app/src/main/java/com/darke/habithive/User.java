@@ -62,7 +62,7 @@ public class User extends AppCompatActivity {
 
         // Set up TabLayout with ViewPager
         new TabLayoutMediator(tabLayout, viewPager,
-                (tab, position) -> tab.setText(position == 0 ? "Habits" : "Tasks")
+                (tab, position) -> tab.setText(position == 0 ? "Login" : "Signup")
         ).attach();
     }
 }

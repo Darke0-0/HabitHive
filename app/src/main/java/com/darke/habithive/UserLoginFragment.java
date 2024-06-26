@@ -23,6 +23,8 @@ import androidx.fragment.app.Fragment;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 
+import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -37,8 +39,8 @@ public class UserLoginFragment extends Fragment {
     Button loginBtn;
     CheckBox rememberMeCheckBox;
     Button forgetPassword;
+    TextInputLayout passwordBox;
     private SharedPreferences sharedPreferences;
-    private boolean isPasswordVisible = false;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -52,6 +54,7 @@ public class UserLoginFragment extends Fragment {
 
         email = view.findViewById(R.id.email);
         password = view.findViewById(R.id.password_edit_text);
+        passwordBox = view.findViewById(R.id.password);
         rememberMeCheckBox = view.findViewById(R.id.remember_me);
         forgetPassword = view.findViewById(R.id.forgot_password);
         loginBtn = view.findViewById(R.id.loginBtn);
@@ -59,16 +62,22 @@ public class UserLoginFragment extends Fragment {
 
         email.setTranslationX(800);
         password.setTranslationX(800);
+        passwordBox.setTranslationX(800);
+        rememberMeCheckBox.setTranslationX(800);
         forgetPassword.setTranslationX(800);
         loginBtn.setTranslationY(0);
 
         email.setAlpha(0);
         password.setAlpha(0);
+        passwordBox.setAlpha(0);
+        rememberMeCheckBox.setAlpha(0);
         forgetPassword.setAlpha(0);
         loginBtn.setAlpha(0);
 
         email.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(300).start();
         password.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(500).start();
+        passwordBox.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(500).start();
+        rememberMeCheckBox.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(500).start();
         forgetPassword.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(500).start();
         loginBtn.animate().translationY(0).alpha(1).setDuration(1000).setStartDelay(700).start();
 
@@ -90,16 +99,16 @@ public class UserLoginFragment extends Fragment {
             }
         });
 
-        // Toggle password visibility
-        password.setOnTouchListener((v, event) -> {
-            final int DRAWABLE_RIGHT = 2;
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (event.getRawX() >= (password.getRight() - password.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                    togglePasswordVisibility();
-                    return true;
+        forgetPassword.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (email.getText().toString().trim().isEmpty()) {
+                    email.setError("Email is required");
+                }
+                else{
+                    onForgotPassword();
                 }
             }
-            return false;
         });
         return view;
     }
@@ -148,6 +157,26 @@ public class UserLoginFragment extends Fragment {
                 });
     }
 
+    public void onForgotPassword() {
+        String email = this.email.getText().toString().trim();
+
+        if (TextUtils.isEmpty(email)) {
+            Toast.makeText(getContext(), "Enter your email to reset password", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        mAuth.sendPasswordResetEmail(email)
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(getContext(), "Password reset email sent", Toast.LENGTH_SHORT).show();
+                    } else {
+                        String errorMessage = task.getException() != null ? task.getException().getMessage() : "Failed to send reset email.";
+                        Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+                        Log.e("ForgotPassword", "Failed to send reset email", task.getException());
+                    }
+                });
+    }
+
 //  Remember Me
     private void loadLogin() {
         String savedEmail = sharedPreferences.getString("email", "");
@@ -173,19 +202,4 @@ public class UserLoginFragment extends Fragment {
         editor.apply();
     }
     //  Remember Me
-
-    private void togglePasswordVisibility() {
-        if (isPasswordVisible) {
-            // Hide Password
-            password.setTransformationMethod(PasswordTransformationMethod.getInstance());
-            password.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.visibility_off_24px, 0);
-        } else {
-            // Show Password
-            password.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-            password.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.visibility_24px, 0);
-        }
-        isPasswordVisible = !isPasswordVisible;
-        // Move the cursor to the end of the text
-        password.setSelection(password.getText().length());
-    }
 }

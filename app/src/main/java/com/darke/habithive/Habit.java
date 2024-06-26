@@ -46,9 +46,7 @@ public class Habit extends AppCompatActivity {
         HabitClass habit = getIntent().getParcelableExtra("habit");
         if (habit != null) {
             // Use the habit object
-            habitNameTextView.setText(habit.getHabitName());
-            Toast.makeText(this, "Habit name: " + habit.getHabitName(), Toast.LENGTH_SHORT).show();
-            Log.d("NextActivity", "Habit name: " + habit.getHabitName());
+            habitNameTextView.setText(habit.getHabitId());
         }
 
         editHabitButton.setOnClickListener(v -> {
@@ -58,8 +56,8 @@ public class Habit extends AppCompatActivity {
         });
 
         deleteHabitButton.setOnClickListener(v -> {
-            // Handle delete habit action
-
+            assert habit != null;
+            deleteHabit(habit.getHabitId());
         });
 
         // Highlight calendar dates (this is a placeholder for actual implementation)

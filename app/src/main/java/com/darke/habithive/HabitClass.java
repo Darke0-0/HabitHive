@@ -18,6 +18,7 @@ public class HabitClass implements Parcelable {
     private String habitType;
     private ArrayList<String> reminders;
     private String userId;
+    private String habitId;
 
     // Required empty constructor
     public HabitClass() {}
@@ -25,7 +26,7 @@ public class HabitClass implements Parcelable {
     // Constructor with all fields
     public HabitClass(String habitName,String userId ,Timestamp createdAt, String habitType, String frequency,
                       ArrayList<Integer> daysOfWeek, ArrayList<Integer> dayOfMonth, ArrayList<String> reminders,
-                      String goalType, ArrayList<String> goalResponse) {
+                      String goalType, ArrayList<String> goalResponse, String habitId) {
         this.habitName = habitName;
         this.userId = userId;
         this.createdAt = createdAt;
@@ -36,6 +37,7 @@ public class HabitClass implements Parcelable {
         this.reminders = reminders;
         this.goalType = goalType;
         this.goalResponse = goalResponse;
+        this.habitId = habitId;
     }
 
     // Parcelable implementation
@@ -70,6 +72,7 @@ public class HabitClass implements Parcelable {
         } else {
             goalResponse = null;
         }
+        habitId = in.readString();
     }
 
     @Override
@@ -103,6 +106,7 @@ public class HabitClass implements Parcelable {
             dest.writeByte((byte) (0x01));
             dest.writeList(goalResponse);
         }
+        dest.writeString(habitId);
     }
 
     @Override
@@ -204,4 +208,13 @@ public class HabitClass implements Parcelable {
     public void setGoalResponse(ArrayList<String> goalResponse) {
         this.goalResponse = goalResponse;
     }
+
+    public String getHabitId() {
+        return habitId;
+    }
+
+    public void setHabitId(String habitId) {
+        this.habitId = habitId;
+    }
+
 }

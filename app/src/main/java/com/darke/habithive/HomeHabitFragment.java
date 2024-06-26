@@ -75,7 +75,7 @@ public class HomeHabitFragment extends Fragment {
                         habitList.clear();
                         for (QueryDocumentSnapshot habitDocument : habitTask.getResult()) {
                             HabitClass habit = habitDocument.toObject(HabitClass.class);
-                            Toast.makeText(getContext(), habit.getHabitName(), Toast.LENGTH_SHORT).show();
+                            habit.setHabitId(habitDocument.getId());
                             habitList.add(habit);
                         }
                         habitAdapter.notifyDataSetChanged();

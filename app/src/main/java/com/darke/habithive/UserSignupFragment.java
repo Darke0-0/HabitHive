@@ -1,12 +1,14 @@
 package com.darke.habithive;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
 
 import android.text.method.HideReturnsTransformationMethod;
 import android.text.method.PasswordTransformationMethod;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
@@ -16,6 +18,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.SignInMethodQueryResult;
@@ -25,15 +28,15 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class UserSignupFragment extends Fragment {
 
     private FirebaseAuth mAuth;
     private FirebaseFirestore db;
-    private boolean isPasswordVisible = false;
-    private boolean isConfirmPasswordVisible = false;
     EditText name, email;
-    TextInputEditText password, confirmPassword;
+    EditText password, confirmPassword;
+    TextInputLayout passwordBox, confirmPasswordBox;
     Button signupButton;
 
     @SuppressLint("ClickableViewAccessibility")
@@ -47,51 +50,35 @@ public class UserSignupFragment extends Fragment {
 
         name = view.findViewById(R.id.fullName);
         email = view.findViewById(R.id.email);
-        password = view.findViewById(R.id.password);
-        confirmPassword = view.findViewById(R.id.confirm_password);
+        password = view.findViewById(R.id.password_edit_text);
+        passwordBox = view.findViewById(R.id.password);
+        confirmPassword = view.findViewById(R.id.confirm_password_edit_text);
+        confirmPasswordBox = view.findViewById(R.id.confirm_password);
         signupButton = view.findViewById(R.id.button);
 
+        name.setTranslationX(800);
         email.setTranslationX(800);
         password.setTranslationX(800);
+        passwordBox.setTranslationX(800);
         confirmPassword.setTranslationX(800);
-        name.setTranslationX(800);
+        confirmPasswordBox.setTranslationX(800);
         signupButton.setTranslationY(0);
 
+        name.setAlpha(0);
         email.setAlpha(0);
         password.setAlpha(0);
+        passwordBox.setAlpha(0);
         confirmPassword.setAlpha(0);
-        name.setAlpha(0);
+        confirmPasswordBox.setAlpha(0);
         signupButton.setAlpha(0);
 
         name.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(200).start();
         email.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(400).start();
         password.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(600).start();
+        passwordBox.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(600).start();
         confirmPassword.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(600).start();
+        confirmPasswordBox.animate().translationX(0).alpha(1).setDuration(1000).setStartDelay(600).start();
         signupButton.animate().translationY(0).alpha(1).setDuration(1000).setStartDelay(800).start();
-
-        // Toggle password visibility
-        password.setOnTouchListener((v, event) -> {
-            final int DRAWABLE_RIGHT = 2;
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (event.getRawX() >= (password.getRight() - password.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                    togglePasswordVisibility(password, true);
-                    return true;
-                }
-            }
-            return false;
-        });
-
-        // Toggle confirm password visibility
-        confirmPassword.setOnTouchListener((v, event) -> {
-            final int DRAWABLE_RIGHT = 2;
-            if (event.getAction() == MotionEvent.ACTION_UP) {
-                if (event.getRawX() >= (confirmPassword.getRight() - confirmPassword.getCompoundDrawables()[DRAWABLE_RIGHT].getBounds().width())) {
-                    togglePasswordVisibility(confirmPassword, false);
-                    return true;
-                }
-            }
-            return false;
-        });
 
         signupButton.setOnClickListener(v -> {
             String Name = name.getText().toString().trim();
@@ -113,33 +100,7 @@ public class UserSignupFragment extends Fragment {
         });
 
         return view;
-    }
-    private void togglePasswordVisibility(TextInputEditText editText, boolean isPassword) {
-        if (isPassword) {
-            if (isPasswordVisible) {
-                // Hide Password
-                editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                editText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.visibility_off_24px, 0);
-            } else {
-                // Show Password
-                editText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                editText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.visibility_24px, 0);
-            }
-            isPasswordVisible = !isPasswordVisible;
-        } else {
-            if (isConfirmPasswordVisible) {
-                // Hide Password
-                editText.setTransformationMethod(PasswordTransformationMethod.getInstance());
-                editText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.visibility_off_24px, 0);
-            } else {
-                // Show Password
-                editText.setTransformationMethod(HideReturnsTransformationMethod.getInstance());
-                editText.setCompoundDrawablesRelativeWithIntrinsicBounds(0, 0, R.drawable.visibility_24px, 0);
-            }
-            isConfirmPasswordVisible = !isConfirmPasswordVisible;
-        }
-        // Move the cursor to the end of the text
-        editText.setSelection(Objects.requireNonNull(editText.getText()).length());
+
     }
 
     private void checkIfEmailExists(String name, String email, String password) {
@@ -149,42 +110,73 @@ public class UserSignupFragment extends Fragment {
                 if (result != null && result.getSignInMethods() != null && !result.getSignInMethods().isEmpty()) {
                     // Email already exists
                     Toast.makeText(getActivity(), "Email is already in use", Toast.LENGTH_SHORT).show();
+                    requireActivity().runOnUiThread(() ->
+                            Toast.makeText(getActivity(), "Email is already in use", Toast.LENGTH_SHORT).show()
+                    );
                 } else {
                     // Email does not exist, proceed with sign up
+                    Toast.makeText(getActivity(), "Email is available", Toast.LENGTH_SHORT).show();
                     signUpUser(name, email, password);
                 }
             } else {
-                Toast.makeText(getActivity(), "Error checking email", Toast.LENGTH_SHORT).show();
+                Log.e("EmailCheck", "Error checking email: ", task.getException());
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getActivity(), "Error checking email", Toast.LENGTH_SHORT).show()
+                );
             }
         });
     }
 
     private void signUpUser(String name, String email, String password) {
+        Executor executor = Executors.newSingleThreadExecutor();
         mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener((Executor) this, task -> {
+                .addOnCompleteListener(executor, task -> {
                     if (task.isSuccessful()) {
                         // Sign up success
                         FirebaseUser user = mAuth.getCurrentUser();
                         if (user != null) {
-                            sendEmailVerification(user);
+//                            sendEmailVerification(user);
                             saveUserToFirestore(user, name);
+                            String userId = user.getUid();
+                            db.collection("users").document(userId)
+                                        .collection("info")
+                                        .get()
+                                        .addOnCompleteListener(infoTask -> {
+                                            if (infoTask.isSuccessful()) {
+                                                Intent intent = new Intent(getContext(), Home.class);
+                                                startActivity(intent);
+                                                requireActivity().finish();
+                                            } else {
+                                                Toast.makeText(getContext(), "Failed to fetch user info", Toast.LENGTH_SHORT).show();
+                                            }
+                                        });
+                        }
+                        else {
+                            requireActivity().runOnUiThread(() ->
+                                    Toast.makeText(getActivity(), "Failed to get user", Toast.LENGTH_SHORT).show()
+                            );
                         }
                     } else {
                         // If sign up fails, display a message to the user.
-                        Toast.makeText(getActivity(), "Authentication failed.", Toast.LENGTH_SHORT).show();
+                        requireActivity().runOnUiThread(() ->
+                                Toast.makeText(getActivity(), "Authentication failed." + task.getException().getMessage(), Toast.LENGTH_SHORT).show()
+                        );
                     }
                 });
     }
-    private void sendEmailVerification(FirebaseUser user) {
-        user.sendEmailVerification()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        Toast.makeText(getActivity(), "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
-                    } else {
-                        Toast.makeText(getActivity(), "Failed to send verification email.", Toast.LENGTH_SHORT).show();
-                    }
-                });
-    }
+
+//    private void sendEmailVerification(FirebaseUser user) {
+//        user.sendEmailVerification()
+//                .addOnCompleteListener(task -> {
+//                    if (task.isSuccessful()) {
+//                        Toast.makeText(getActivity(), "Verification email sent to " + user.getEmail(), Toast.LENGTH_SHORT).show();
+//                    } else {
+//                        // If there is an error, display it
+//                        String errorMessage = task.getException() != null ? task.getException().getMessage() : "Failed to send verification email.";
+//                        Toast.makeText(getActivity(), errorMessage, Toast.LENGTH_SHORT).show();
+//                    }
+//                });
+//    }
 
     private void saveUserToFirestore(FirebaseUser user, String name) {
         String userId = user.getUid();
