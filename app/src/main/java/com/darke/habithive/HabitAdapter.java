@@ -37,6 +37,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     @Override
     public void onBindViewHolder(@NonNull HabitViewHolder holder, int position) {
         HabitClass habit = habitList.get(position);
+        String habitId = habit.getHabitId();
 
         // Set the habit name as the button text
         holder.nameButton.setText(habit.getHabitName());
@@ -48,7 +49,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
 
         holder.nameButton.setOnClickListener(v -> {
             Intent intent = new Intent(v.getContext(), Habit.class);
-            intent.putExtra("habit", habit);
+            intent.putExtra("habitId", habitId);
             startActivity(v.getContext(), intent, null);
         });
     }

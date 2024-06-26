@@ -37,7 +37,6 @@ android {
 }
 
 dependencies {
-
     implementation(libs.appcompat)
     implementation(libs.material)
     implementation(libs.activity)
@@ -51,6 +50,7 @@ dependencies {
     implementation(libs.navigation.ui)
     implementation(libs.fragment.testing)
     implementation(libs.material.v130alpha03)
+    implementation(libs.material.calendarview)
     testImplementation(libs.junit)
     testImplementation(libs.junit.v113)
     testImplementation(libs.espresso.core.v340)
@@ -64,5 +64,4 @@ dependencies {
     implementation(libs.firebase.auth.v2101)
     implementation(platform("com.google.firebase:firebase-bom:33.1.1"))
     implementation(libs.firebase.analytics)
-    implementation(libs.recyclerview)
 }

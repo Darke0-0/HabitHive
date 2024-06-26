@@ -36,6 +36,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FieldValue;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.SetOptions;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -553,9 +554,35 @@ public class CreationHabitFragment extends Fragment {
                     Intent intent = new Intent(getActivity(), Habit.class);
                     String habitId = documentReference.getId();
                     documentReference.update("habitId", habitId);
+                    createHabitWithDates(habitId);
                     startActivity(intent);
                     getActivity().finish();
                 })
                 .addOnFailureListener(e -> Toast.makeText(getContext(), "Error saving habit", Toast.LENGTH_SHORT).show());
+    }
+
+    public void createHabitWithDates(String habitId) {
+        String userId = auth.getCurrentUser().getUid();
+        Calendar calendar = Calendar.getInstance();
+        Calendar endCalendar = Calendar.getInstance();
+        endCalendar.add(Calendar.MONTH, 3); // 3 months from now
+
+        while (calendar.before(endCalendar)) {
+            int year = calendar.get(Calendar.YEAR);
+            int month = calendar.get(Calendar.MONTH) + 1; // Calendar.MONTH is zero-based
+            int day = calendar.get(Calendar.DAY_OF_MONTH);
+            String dateString = year + "-" + month + "-" + day;
+
+            Map<String, Object> dateData = new HashMap<>();
+            dateData.put("status", "default");
+            dateData.put("notes", "");
+
+            db.collection("users").document(userId)
+                    .collection("habits").document(habitId)
+                    .collection("dates").document(dateString)
+                    .set(dateData, SetOptions.merge());
+
+            calendar.add(Calendar.DAY_OF_MONTH, 1); // move to next day
+        }
     }
 }
