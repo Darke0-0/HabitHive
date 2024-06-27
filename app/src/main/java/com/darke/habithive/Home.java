@@ -46,8 +46,8 @@ public class Home extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        TabLayout tabLayout = findViewById(R.id.tab_layout);
-        ViewPager2 viewPager = findViewById(R.id.view_pager);
+        TabLayout tabLayout = findViewById(R.id.tab_layout_home);
+        ViewPager2 viewPager = findViewById(R.id.view_pager_home);
         FloatingActionButton fabAdd = findViewById(R.id.fab_add);
         TextView welcomeTextView = findViewById(R.id.welcome_text_view);
 

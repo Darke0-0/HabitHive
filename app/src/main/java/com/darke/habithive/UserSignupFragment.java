@@ -54,7 +54,7 @@ public class UserSignupFragment extends Fragment {
         passwordBox = view.findViewById(R.id.password);
         confirmPassword = view.findViewById(R.id.confirm_password_edit_text);
         confirmPasswordBox = view.findViewById(R.id.confirm_password);
-        signupButton = view.findViewById(R.id.button);
+        signupButton = view.findViewById(R.id.signupBtn);
 
         name.setTranslationX(800);
         email.setTranslationX(800);
