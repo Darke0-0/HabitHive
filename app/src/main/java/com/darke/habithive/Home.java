@@ -2,16 +2,22 @@ package com.darke.habithive;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 import androidx.activity.EdgeToEdge;
 import androidx.core.graphics.Insets;
@@ -19,6 +25,11 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class Home extends AppCompatActivity {
+
+    private DrawerLayout drawerLayout;
+    private ActionBarDrawerToggle drawerToggle;
+    private Menu navigationDrawer;
+    private NavigationView navigationView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,6 +55,25 @@ public class Home extends AppCompatActivity {
         String email = getIntent().getStringExtra("email");
         String name = getIntent().getStringExtra("name");
 
+        drawerLayout = findViewById(R.id.drawer_layout);
+        navigationView = findViewById(R.id.nav_view);
+
+        // Initialize ActionBarDrawerToggle and set it to DrawerLayout
+        ActionBarDrawerToggle drawerToggle = new ActionBarDrawerToggle(
+                this, drawerLayout, toolbar,
+                R.string.navigation_drawer_open,
+                R.string.navigation_drawer_close
+        );
+        drawerLayout.addDrawerListener(drawerToggle);
+        drawerToggle.syncState();
+
+        // Setup navigation item selected listener
+        navigationView.setNavigationItemSelectedListener(item -> {
+            // Handle navigation item clicks here
+            drawerLayout.closeDrawers(); // Close drawer after item click
+            return true;
+        });
+
         // Set up ViewPager with an adapter
         HomeViewPagerAdapter adapter = new HomeViewPagerAdapter(this);
         viewPager.setAdapter(adapter);
@@ -63,4 +93,13 @@ public class Home extends AppCompatActivity {
              startActivity(intent);
         });
     }
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        // Handle action bar item clicks here
+        if (drawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
 }

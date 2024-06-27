@@ -1,8 +1,11 @@
 package com.darke.habithive;
 
 import android.app.AlertDialog;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Bundle;
+import android.text.style.LineBackgroundSpan;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,12 +27,8 @@ import com.prolificinteractive.materialcalendarview.DayViewDecorator;
 import com.prolificinteractive.materialcalendarview.DayViewFacade;
 import com.prolificinteractive.materialcalendarview.MaterialCalendarView;
 import com.prolificinteractive.materialcalendarview.OnDateSelectedListener;
-import com.prolificinteractive.materialcalendarview.spans.DotSpan;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Calendar;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -56,7 +55,7 @@ public class Habit extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        calendarView = findViewById(R.id.calendar_view);
+        calendarView = findViewById(R.id.calendarView);
         editHabitButton = findViewById(R.id.edit_habit_button);
         deleteHabitButton = findViewById(R.id.delete_habit_button);
 
@@ -64,6 +63,7 @@ public class Habit extends AppCompatActivity {
 
         loadHabits(habitId);
         loadHabitStatuses(habitId);
+        calendarView.addDecorator(new CircleDecorator(Color.GRAY));
 
         editHabitButton.setOnClickListener(v -> {
             // Handle edit habit action
@@ -103,7 +103,7 @@ public class Habit extends AppCompatActivity {
     }
 
     private void loadHabitStatuses(String habitId) {
-        String userId = mAuth.getCurrentUser().getUid();
+        String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
         db.collection("users").document(userId)
                 .collection("habits").document(habitId)
                 .collection("dates")
@@ -132,11 +132,8 @@ public class Habit extends AppCompatActivity {
             CalendarDay calendarDay = CalendarDay.from(year, month, day);
 
             // Add decorator for each calendar day
-            calendarView.addDecorator(new CircleDecorator(calendarDay, getColorForStatus(status)));
-
-            Toast.makeText(Habit.this, "Calendar date updated", Toast.LENGTH_SHORT).show();
+            calendarView.addDecorator(new CircleDecorator(calendarDay, getColorForStatus(status), true));
         } catch (Exception e) {
-            Toast.makeText(Habit.this, "Error updating calendar date", Toast.LENGTH_SHORT).show();
             Log.e("Habit", "Error updating calendar date", e);
         }
     }
@@ -160,25 +157,60 @@ public class Habit extends AppCompatActivity {
         return color;
     }
 
-    // Custom decorator to draw circle around calendar day
-    private static class CircleDecorator implements DayViewDecorator {
-
-        private final CalendarDay day;
+    public static class CircleDecorator implements DayViewDecorator {
+        private final CalendarDay date;
         private final int color;
+        private final boolean isSpecificDate;
 
-        public CircleDecorator(CalendarDay day, int color) {
-            this.day = day;
+        // Constructor for default decorator
+        public CircleDecorator(int color) {
+            this.date = null;
             this.color = color;
+            this.isSpecificDate = false;
+        }
+
+        // Constructor for specific date decorator
+        public CircleDecorator(CalendarDay date, int color, boolean b) {
+            this.date = date;
+            this.color = color;
+            this.isSpecificDate = true;
         }
 
         @Override
         public boolean shouldDecorate(CalendarDay day) {
-            return this.day.equals(day);
+            if (isSpecificDate) {
+                return day.equals(date);
+            } else {
+                // Ensure the decorator is applied only to valid dates
+                return true;
+            }
         }
 
         @Override
         public void decorate(DayViewFacade view) {
-            view.addSpan(new DotSpan(8, color)); // Adjust dot size and color as needed
+            view.addSpan(new CircleSpan(color));
+        }
+
+        public static class CircleSpan implements LineBackgroundSpan {
+            private final int color;
+
+            public CircleSpan(int color) {
+                this.color = color;
+            }
+
+            @Override
+            public void drawBackground(Canvas canvas, Paint paint, int left, int right, int top, int baseline, int bottom, CharSequence charSequence, int start, int end, int lineNumber) {
+                int oldColor = paint.getColor();
+                paint.setColor(color);
+
+                float radius = 3*(bottom - top) / 2f; // Adjust radius as needed
+                float centerX = (left + right) / 2f;
+                float centerY = (top + bottom) / 2f;
+
+                canvas.drawCircle(centerX, centerY, radius, paint);
+
+                paint.setColor(oldColor);
+            }
         }
     }
 

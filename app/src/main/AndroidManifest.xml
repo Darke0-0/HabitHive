@@ -14,6 +14,10 @@
         android:theme="@style/Theme.HabitHive"
         tools:targetApi="31">
         <activity
+            android:name=".Menu"
+            android:exported="false"
+            android:theme="@style/Theme.HabitHive" />
+        <activity
             android:name=".Startup"
             android:exported="false" />
         <activity
