@@ -14,24 +14,21 @@
         android:theme="@style/Theme.HabitHive"
         tools:targetApi="31">
         <activity
-            android:name=".Menu"
+            android:name=".Dashboard"
             android:exported="false"
             android:theme="@style/Theme.HabitHive" />
         <activity
-            android:name=".Startup"
+            android:name=".User"
             android:exported="false" />
         <activity
             android:name=".Habit"
             android:exported="false"
             android:theme="@style/Theme.HabitHive" />
         <activity
-            android:name=".Home"
-            android:exported="false" />
-        <activity
             android:name=".Creation"
             android:exported="false" />
         <activity
-            android:name=".User"
+            android:name=".Startup"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

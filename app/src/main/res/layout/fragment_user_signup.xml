@@ -5,7 +5,7 @@
     android:layout_height="match_parent">
 
     <EditText
-        android:id="@+id/fullName"
+        android:id="@+id/fullName_user"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="Full name"

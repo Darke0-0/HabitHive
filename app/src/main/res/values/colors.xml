@@ -10,4 +10,7 @@
     <color name="colorUnchecked">#FFFFFF</color>
 
     <color name="button_color">#464D56</color> <!-- Replace #3F51B5 with your color -->
+
+    <color name="selected_date_background">#FFEB3B</color> <!-- Yellow color -->
+    <color name="transparent">#00000000</color> <!-- Transparent color -->
 </resources>

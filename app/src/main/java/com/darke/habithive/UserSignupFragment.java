@@ -1,7 +1,10 @@
 package com.darke.habithive;
 
+import static android.content.Context.MODE_PRIVATE;
+
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 
 import androidx.fragment.app.Fragment;
@@ -48,7 +51,7 @@ public class UserSignupFragment extends Fragment {
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
-        name = view.findViewById(R.id.fullName);
+        name = view.findViewById(R.id.fullName_user);
         email = view.findViewById(R.id.email);
         password = view.findViewById(R.id.password_edit_text);
         passwordBox = view.findViewById(R.id.password);
@@ -109,13 +112,11 @@ public class UserSignupFragment extends Fragment {
                 SignInMethodQueryResult result = task.getResult();
                 if (result != null && result.getSignInMethods() != null && !result.getSignInMethods().isEmpty()) {
                     // Email already exists
-                    Toast.makeText(getActivity(), "Email is already in use", Toast.LENGTH_SHORT).show();
                     requireActivity().runOnUiThread(() ->
                             Toast.makeText(getActivity(), "Email is already in use", Toast.LENGTH_SHORT).show()
                     );
                 } else {
                     // Email does not exist, proceed with sign up
-                    Toast.makeText(getActivity(), "Email is available", Toast.LENGTH_SHORT).show();
                     signUpUser(name, email, password);
                 }
             } else {
@@ -124,6 +125,12 @@ public class UserSignupFragment extends Fragment {
                         Toast.makeText(getActivity(), "Error checking email", Toast.LENGTH_SHORT).show()
                 );
             }
+        });
+    }
+
+    private void showToastMessage(String message) {
+        requireActivity().runOnUiThread(() -> {
+            Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show();
         });
     }
 
@@ -138,12 +145,16 @@ public class UserSignupFragment extends Fragment {
 //                            sendEmailVerification(user);
                             saveUserToFirestore(user, name);
                             String userId = user.getUid();
+                            showToastMessage(userId);
                             db.collection("users").document(userId)
                                         .collection("info")
                                         .get()
                                         .addOnCompleteListener(infoTask -> {
                                             if (infoTask.isSuccessful()) {
-                                                Intent intent = new Intent(getContext(), Home.class);
+                                                Intent intent = new Intent(getContext(), Dashboard.class);
+                                                SharedPreferences.Editor editor = requireActivity().getSharedPreferences("MyPrefs", MODE_PRIVATE).edit();
+                                                editor.putString("userId", userId);
+                                                editor.apply();
                                                 startActivity(intent);
                                                 requireActivity().finish();
                                             } else {

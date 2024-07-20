@@ -50,7 +50,7 @@ public class User extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
         setContentView(R.layout.activity_user);
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main_user), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
@@ -140,7 +140,7 @@ public class User extends AppCompatActivity {
                                 }
 
                                 // Navigate to HomeActivity or your main activity
-                                startActivity(new Intent(User.this, Home.class));
+                                startActivity(new Intent(User.this, Dashboard.class));
                                 finish(); // Finish current activity to prevent returning to this screen
                             } else {
                                 // If sign-in fails, display a message to the user.
@@ -182,7 +182,7 @@ public class User extends AppCompatActivity {
                             Toast.makeText(User.this, "Google account linked successfully.", Toast.LENGTH_SHORT).show();
 
                             // Navigate to HomeActivity or your main activity
-                            startActivity(new Intent(User.this, Home.class));
+                            startActivity(new Intent(User.this, Dashboard.class));
                             finish(); // Finish current activity to prevent returning to this screen
                         } else {
                             // Failed to link Google credential with existing Firebase account
@@ -192,4 +192,5 @@ public class User extends AppCompatActivity {
                     }
                 });
     }
+    
 }

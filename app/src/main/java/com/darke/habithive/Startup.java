@@ -1,6 +1,9 @@
 package com.darke.habithive;
 
+import static com.darke.habithive.UserData.loadUserDataAndSaveToPrefs;
+
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -52,7 +55,8 @@ public class Startup extends AppCompatActivity {
                             .get()
                             .addOnCompleteListener(infoTask -> {
                                 if (infoTask.isSuccessful()) {
-                                    Intent intent = new Intent(Startup.this, Home.class);
+                                    Intent intent = new Intent(Startup.this, Dashboard.class);
+                                    loadUserDataAndSaveToPrefs(Startup.this);
                                     startActivity(intent);
                                     finish();
                                 }

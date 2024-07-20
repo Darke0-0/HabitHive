@@ -1,130 +1,56 @@
 package com.darke.habithive;
 
-import android.os.Parcel;
-import android.os.Parcelable;
+import static androidx.test.InstrumentationRegistry.getContext;
+
+import android.content.Context;
+import android.widget.Toast;
 
 import com.google.firebase.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
 
-public class HabitClass implements Parcelable {
+import org.threeten.bp.Instant;
+import org.threeten.bp.LocalDate;
+import org.threeten.bp.ZoneId;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+public class HabitClass{
     private Timestamp createdAt;
     private ArrayList<Integer> daysOfWeek;
-    private ArrayList<Integer> dayOfMonth;
+    private ArrayList<Integer> daysOfMonth;
     private String frequency;
     private ArrayList<String> goalResponse;
     private String goalType;
     private String habitName;
     private String habitType;
     private ArrayList<String> reminders;
-    private String userId;
     private String habitId;
+    private List<LocalDate> scheduledDates;
+    private Map<String,Map<String, Object>> progress;
 
     // Required empty constructor
     public HabitClass() {}
 
     // Constructor with all fields
-    public HabitClass(String habitName,String userId ,Timestamp createdAt, String habitType, String frequency,
-                      ArrayList<Integer> daysOfWeek, ArrayList<Integer> dayOfMonth, ArrayList<String> reminders,
-                      String goalType, ArrayList<String> goalResponse, String habitId) {
+    public HabitClass(String habitName ,Timestamp createdAt, String habitType, String frequency,
+                      ArrayList<Integer> daysOfWeek, ArrayList<Integer> daysOfMonth,
+                      ArrayList<String> reminders, String goalType, ArrayList<String> goalResponse,
+                      String habitId, Map<String, Map<String, Object>> progress) {
         this.habitName = habitName;
-        this.userId = userId;
         this.createdAt = createdAt;
         this.habitType = habitType;
         this.frequency = frequency;
         this.daysOfWeek = daysOfWeek;
-        this.dayOfMonth = dayOfMonth;
+        this.daysOfMonth = daysOfMonth;
         this.reminders = reminders;
         this.goalType = goalType;
         this.goalResponse = goalResponse;
         this.habitId = habitId;
+        this.progress = progress;
     }
-
-    // Parcelable implementation
-    protected HabitClass(Parcel in) {
-        habitName = in.readString();
-        userId = in.readString();
-        createdAt = in.readParcelable(Timestamp.class.getClassLoader());
-        habitType = in.readString();
-        frequency = in.readString();
-        goalType = in.readString();
-        if (in.readByte() == 0x01) {
-            daysOfWeek = new ArrayList<>();
-            in.readList(daysOfWeek, Integer.class.getClassLoader());
-        } else {
-            daysOfWeek = null;
-        }
-        if (in.readByte() == 0x01) {
-            dayOfMonth = new ArrayList<>();
-            in.readList(dayOfMonth, Integer.class.getClassLoader());
-        } else {
-            dayOfMonth = null;
-        }
-        if (in.readByte() == 0x01) {
-            reminders = new ArrayList<>();
-            in.readList(reminders, String.class.getClassLoader());
-        } else {
-            reminders = null;
-        }
-        if (in.readByte() == 0x01) {
-            goalResponse = new ArrayList<>();
-            in.readList(goalResponse, String.class.getClassLoader());
-        } else {
-            goalResponse = null;
-        }
-        habitId = in.readString();
-    }
-
-    @Override
-    public void writeToParcel(Parcel dest, int flags) {
-        dest.writeString(habitName);
-        dest.writeString(userId);
-        dest.writeParcelable(createdAt, flags);
-        dest.writeString(habitType);
-        dest.writeString(frequency);
-        if (daysOfWeek == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeList(daysOfWeek);
-        }
-        if (dayOfMonth == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeList(dayOfMonth);
-        }
-        if (reminders == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeList(reminders);
-        }
-        if (goalResponse == null) {
-            dest.writeByte((byte) (0x00));
-        } else {
-            dest.writeByte((byte) (0x01));
-            dest.writeList(goalResponse);
-        }
-        dest.writeString(habitId);
-    }
-
-    @Override
-    public int describeContents() {
-        return 0;
-    }
-
-    public static final Parcelable.Creator<HabitClass> CREATOR = new Parcelable.Creator<HabitClass>() {
-        @Override
-        public HabitClass createFromParcel(Parcel in) {
-            return new HabitClass(in);
-        }
-
-        @Override
-        public HabitClass[] newArray(int size) {
-            return new HabitClass[size];
-        }
-    };
 
     // Getters and setters
     public String getHabitName() {
@@ -133,14 +59,6 @@ public class HabitClass implements Parcelable {
 
     public void setHabitName(String habitName) {
         this.habitName = habitName;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    public void setUserId(String userId) {
-        this.userId = userId;
     }
 
     public Timestamp getCreatedAt() {
@@ -173,15 +91,15 @@ public class HabitClass implements Parcelable {
 
     public void setDaysOfWeek(ArrayList<Integer> daysOfWeek) {
         this.daysOfWeek = daysOfWeek;
-        this.dayOfMonth = null;
+        this.daysOfMonth = null;
     }
 
-    public ArrayList<Integer> getDayOfMonth() {
-        return dayOfMonth;
+    public ArrayList<Integer> getDaysOfMonth() {
+        return daysOfMonth;
     }
 
-    public void setDayOfMonth(ArrayList<Integer> dayOfMonth) {
-        this.dayOfMonth = dayOfMonth;
+    public void setDaysOfMonth(ArrayList<Integer> daysOfMonth) {
+        this.daysOfMonth = daysOfMonth;
         this.daysOfWeek = null;
     }
 
@@ -217,4 +135,63 @@ public class HabitClass implements Parcelable {
         this.habitId = habitId;
     }
 
+
+    public Map<String,Map<String, Object>>  getProgress() {
+        return progress;
+    }
+
+    public void setProgress(Map<String,Map<String, Object>>  progress) {
+        this.progress = progress;
+    }
+
+    public int getCompletionRate() {
+        return 0;
+    }
+    public String getStreakInfo() {
+        return "0-day streak";
+    }
+
+    public List<String> getChecklistGoal() {
+        if (goalType.equals("Checklist")) {
+            return goalResponse;
+        } else {
+            return null;
+        }
+    }
+
+    public boolean isChecklistCompleted() {
+        return false;
+    }
+
+    public String getTimerGoal() {
+        return "1314";
+    }
+
+    public int getCounterGoal() {
+        return 0;
+    }
+
+    public int getCounterValue() {
+        return 0;
+    }
+
+    public void setCounterValue(int counterValue) {
+    }
+
+    public void setChecklistCompleted(boolean checklistCompleted) {
+    }
+
+    public boolean isDueOnDate(LocalDate date) {
+
+        LocalDate createdAtDate = Instant.ofEpochMilli(this.createdAt.toDate().getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
+
+        if (frequency.equals("Daily")) {
+            int current = date.getDayOfWeek().getValue() - 1;
+            return daysOfWeek.get(current) == 1 && date.isAfter(createdAtDate);
+        }else if (frequency.equals("Monthly")) {
+            return daysOfMonth.contains(date.getDayOfMonth());
+        } else {
+            return false;
+        }
+    }
 }

@@ -1,5 +1,9 @@
 package com.darke.habithive;
 
+import static android.content.Context.MODE_PRIVATE;
+
+import static com.darke.habithive.UserData.loadUserDataAndSaveToPrefs;
+
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +32,12 @@ import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.gson.Gson;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class UserLoginFragment extends Fragment {
 
@@ -58,7 +67,7 @@ public class UserLoginFragment extends Fragment {
         rememberMeCheckBox = view.findViewById(R.id.remember_me);
         forgetPassword = view.findViewById(R.id.forgot_password);
         loginBtn = view.findViewById(R.id.loginBtn);
-        sharedPreferences = requireActivity().getSharedPreferences("HabitHivePrefs", Context.MODE_PRIVATE);
+        sharedPreferences = requireActivity().getSharedPreferences("HabitHivePrefs", MODE_PRIVATE);
 
         email.setTranslationX(800);
         password.setTranslationX(800);
@@ -139,7 +148,8 @@ public class UserLoginFragment extends Fragment {
                                         .get()
                                         .addOnCompleteListener(infoTask -> {
                                             if (infoTask.isSuccessful()) {
-                                                Intent intent = new Intent(getContext(), Home.class);
+                                                Intent intent = new Intent(getContext(), Dashboard.class);
+                                                loadUserDataAndSaveToPrefs(getContext());
                                                 startActivity(intent);
                                                 requireActivity().finish();
                                             } else {

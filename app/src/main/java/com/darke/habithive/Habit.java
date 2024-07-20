@@ -60,9 +60,9 @@ public class Habit extends AppCompatActivity {
         deleteHabitButton = findViewById(R.id.delete_habit_button);
 
         String habitId = getIntent().getStringExtra("habitId");
+        habit = Objects.requireNonNull(UserData.getUserData(this)).getHabitById(habitId);
 
-        loadHabits(habitId);
-        loadHabitStatuses(habitId);
+//        loadHabitStatuses(habitId);
         calendarView.addDecorator(new CircleDecorator(Color.GRAY));
 
         editHabitButton.setOnClickListener(v -> {
@@ -84,22 +84,6 @@ public class Habit extends AppCompatActivity {
                 showNoteDialog(dateString, habitId);
             }
         });
-    }
-
-    private void loadHabits(String habitId) {
-        String userId = Objects.requireNonNull(mAuth.getCurrentUser()).getUid();
-        Toast.makeText(Habit.this, habitId, Toast.LENGTH_SHORT).show();
-        db.collection("users").document(userId)
-                .collection("habits").document(habitId)
-                .get()
-                .addOnCompleteListener(habitTask -> {
-                    if (habitTask.isSuccessful()) {
-                        DocumentSnapshot habitDocument = habitTask.getResult(); // Corrected line
-                        if (habitDocument != null && habitDocument.exists()) {
-                            habit = habitDocument.toObject(HabitClass.class);
-                        }
-                    }
-                });
     }
 
     private void loadHabitStatuses(String habitId) {
