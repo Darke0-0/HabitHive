@@ -36,6 +36,33 @@ android {
     }
 }
 
+tasks.register("generateGoogleServicesJson") {
+    val templateFile = file("google-services.json.template")
+    val outputFile = file("google-services.json")
+    
+    val localProperties = java.util.Properties()
+    val localPropertiesFile = rootProject.file("local.properties")
+    if (localPropertiesFile.exists()) {
+        localProperties.load(localPropertiesFile.inputStream())
+    }
+    val apiKey = localProperties.getProperty("FIREBASE_API_KEY") ?: "YOUR_API_KEY_HERE"
+
+    inputs.file(templateFile)
+    inputs.property("apiKey", apiKey)
+    outputs.file(outputFile)
+
+    doLast {
+        if (templateFile.exists()) {
+            val content = templateFile.readText().replace("${FIREBASE_API_KEY}", apiKey)
+            outputFile.writeText(content)
+        }
+    }
+}
+
+tasks.matching { it.name.matches(Regex("process.*GoogleServices")) }.configureEach {
+    dependsOn("generateGoogleServicesJson")
+}
+
 dependencies {
     implementation(libs.appcompat)
     implementation(libs.material)
