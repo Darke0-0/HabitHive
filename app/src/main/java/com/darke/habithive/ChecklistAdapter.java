@@ -1,6 +1,8 @@
 package com.darke.habithive;
 import static androidx.test.InstrumentationRegistry.getContext;
 
+import static com.darke.habithive.HabitAdapter.listenForHabitChanges;
+
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -131,7 +133,6 @@ public class ChecklistAdapter extends RecyclerView.Adapter<ChecklistAdapter.Chec
                 .addOnSuccessListener(aVoid -> Log.d("Firestore", "Progress updated"))
                 .addOnFailureListener(e -> Log.w("Firestore", "Error updating progress", e));
 
-        HabitAdapter.updateHabitStatus();
     }
 
 }

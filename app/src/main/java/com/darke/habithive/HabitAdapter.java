@@ -17,6 +17,9 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.firestore.DocumentChange;
+import com.google.firebase.firestore.FirebaseFirestore;
+
 import org.threeten.bp.Instant;
 import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
@@ -36,6 +39,8 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
     private static Context context;
     private List<HabitClass> habitList;
     private static LocalDate selectedDate;
+    private static Map<String, Map<String, Object>> progress;
+    private static List<String> daysStatus;
 
     public HabitAdapter(List<HabitClass> habitList, Context context) {
         this.habitList = habitList;
@@ -71,9 +76,8 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         this.habitList = habits;
         notifyDataSetChanged();
     }
-
-    public static void updateHabitStatus() {
-        UserData.loadUserDataAndSaveToPrefs(context);
+    public static void setProgress(Map<String, Map<String, Object>> progress) {
+        HabitAdapter.progress = progress;
     }
 
     public static class HabitViewHolder extends RecyclerView.ViewHolder {
@@ -118,6 +122,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
             String userId = Objects.requireNonNull(UserData.getUserData(context)).getUserId();
             habitName.setText(habit.getHabitName());
             habitType.setText(habit.getHabitType());
+            progress = habit.getProgress();
 
             // Handle goals visibility
             switch (habit.getGoalType()) {
@@ -147,7 +152,8 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
                     break;
             }
 
-            updateCalendar(getLast7DaysStatus(habit));
+            daysStatus = getLast7DaysStatus(habit);
+            updateCalendar(daysStatus);
 
             // Increment counter value on button click
             incrementCounterButton.setOnClickListener(v -> {
@@ -155,9 +161,7 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
                 habit.setCounterValue(currentValue + 1);
                 counterValue.setText(String.valueOf(habit.getCounterValue()));
             });
-
         }
-
 
         private void updateCalendar(List<String> last7DaysStatus) {
             View[] days = {day7, day6, day5, day4, day3, day2, day1};
@@ -189,7 +193,6 @@ public class HabitAdapter extends RecyclerView.Adapter<HabitAdapter.HabitViewHol
         List<String> goals = habit.getGoalResponse();
         LocalDate createdAt = Instant.ofEpochMilli(habit.getCreatedAt().toDate().getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
         Map<String, List<String>> statusMap = new HashMap<>();
-        Map<String, Map<String, Object>> progress = habit.getProgress();
 
         LocalDate currentDate = selectedDate;
         int daysFound = 0;

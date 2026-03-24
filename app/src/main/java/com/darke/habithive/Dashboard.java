@@ -1,5 +1,9 @@
 package com.darke.habithive;
 
+import static com.google.firebase.firestore.DocumentChange.Type.REMOVED;
+import static com.google.firebase.firestore.DocumentChange.Type.ADDED;
+import static com.google.firebase.firestore.DocumentChange.Type.MODIFIED;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -40,6 +44,7 @@ import java.util.Objects;
 
 import com.google.android.material.button.MaterialButton;
 import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 public class Dashboard extends AppCompatActivity{
@@ -64,8 +69,6 @@ public class Dashboard extends AppCompatActivity{
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
-
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
 
         viewPagerWeeks = findViewById(R.id.week_view_pager);
         MaterialButton prevButton = findViewById(R.id.prev_button);
@@ -98,6 +101,8 @@ public class Dashboard extends AppCompatActivity{
             Intent intent = new Intent(Dashboard.this, Creation.class);
             startActivity(intent);
         });
+
+        listenForHabitChanges();
     }
 
     private List<LocalDate> generateWeeksList(LocalDate currentDate) {
@@ -133,9 +138,27 @@ public class Dashboard extends AppCompatActivity{
         return habitsDueOnDate;
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        UserData.loadUserDataAndSaveToPrefs(this);
+    private void listenForHabitChanges() {
+        String userId = UserData.getUserData(this).getUserId();
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("user").document(userId).collection("habits").addSnapshotListener((snapshots, e) -> {
+            if (e != null) {
+                Log.w("Dashboard", "Listen failed.", e);
+                return;
+            }
+
+            if (snapshots != null) {
+                for (DocumentChange dc : snapshots.getDocumentChanges()) {
+                    switch (dc.getType()) {
+                        case ADDED:
+                        case MODIFIED:
+                        case REMOVED:
+                            UserData.loadUserDataAndSaveToPrefs(this);
+                            break;
+                    }
+                }
+            }
+        });
     }
 }
