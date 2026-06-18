@@ -1,7 +1,4 @@
 package com.darke.habithive;
-import static androidx.test.InstrumentationRegistry.getContext;
-
-import static com.darke.habithive.HabitAdapter.listenForHabitChanges;
 
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,17 +10,12 @@ import android.widget.EditText;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.firebase.Timestamp;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import org.threeten.bp.LocalDate;
-import org.threeten.bp.Month;
 import org.threeten.bp.format.DateTimeFormatter;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 
