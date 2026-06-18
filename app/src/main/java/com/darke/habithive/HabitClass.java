@@ -1,10 +1,5 @@
 package com.darke.habithive;
 
-import static androidx.test.InstrumentationRegistry.getContext;
-
-import android.content.Context;
-import android.widget.Toast;
-
 import com.google.firebase.Timestamp;
 
 import org.threeten.bp.Instant;
@@ -12,8 +7,6 @@ import org.threeten.bp.LocalDate;
 import org.threeten.bp.ZoneId;
 
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
