@@ -1,52 +1,86 @@
 # HabitHive
 
-HabitHive is an Android application designed to help users build, manage, and track habits effectively. The app provides a comprehensive dashboard with calendar-based tracking, rich habit customization, and data synchronization.
+HabitHive is a native Android habit tracking app for creating routines, scheduling recurring goals, and monitoring progress over time. It combines Firebase-backed user accounts with calendar-based tracking, habit categories, reminders, and charted progress views.
 
-## Capabilities & Features
+![HabitHive app logo](app/src/main/habithive_logo-playstore.png)
 
-### 1. Advanced Habit Tracking
-- **Flexible Scheduling:** Set habits to occur daily (on specific days of the week) or monthly (on specific days of the month).
-- **Goal Types:** Customize your habits tracking with different goal methods:
-  - **Checklists:** Mark items off as you go.
-  - **Counters:** Track numeric values (e.g., drink 8 glasses of water).
-  - **Timers:** Time your habits.
-- **Progress Tracking:** Monitor your completion rate and maintain streaks to keep yourself motivated.
+## Features
 
-### 2. Diverse Habit Categories
-Organize your routines with specialized categories:
-- 💼 Work
-- 📚 Study
-- 🏥 Health
-- 💰 Finance
-- 🏕️ Outdoor
-- 🥗 Nutrition
-- 🤝 Social
-- 🧘 Meditation
-- 🚫 Quit
-- 🏃 Run
+- Create habits with daily or monthly schedules.
+- Track goals as checklists, counters, timers, or simple completion states.
+- Organize habits by category, including health, study, work, finance, nutrition, social, meditation, running, and quit goals.
+- View due habits by week and calendar date.
+- Authenticate users with Firebase Auth.
+- Store and sync habit data with Firebase Firestore.
+- Visualize progress with MPAndroidChart.
+- Schedule background work with Android WorkManager.
 
-### 3. User Interface & Dashboards
-- **Weekly/Calendar View:** A dynamic view pager that lets you seamlessly navigate through weeks and see exactly what habits are due on any given day.
-- **Data Visualization:** Integrated with MPAndroidChart to provide visual insights into your habit-building progress.
+## Tech Stack
 
-### 4. Cloud Database & Authentication
-- **User Accounts:** Secure authentication handled via Firebase Auth. Connect, sign up, and log in seamlessly.
-- **Cloud Sync:** Uses Firebase Firestore to store, update, and real-time sync habit data across your instances to ensure you never lose your progress.
+- Java
+- Android Gradle Plugin
+- Firebase Auth, Firestore, and Analytics
+- Material Components for Android
+- RecyclerView and ViewBinding
+- Navigation components
+- MPAndroidChart
+- ThreeTenABP
 
-## System Overview
+## Project Structure
 
-HabitHive is built using modern Android development practices:
-- **Language:** Java
-- **Architecture:** The application relies on Android Activity/Fragment lifecycles combined with `RecyclerView`s and custom adapters (`HabitAdapter`, `WeekAdapter`) for UI modeling.
-- **Backend:** 
-  - **Firebase Firestore:** NoSQL cloud database for data persistence.
-  - **Firebase Auth:** Handles secure user authentication.
-- **Key Libraries:**
-  - `MPAndroidChart` - For rendering statistics and progress charts.
-  - `ThreeTenABP` - For robust date and time manipulation (Java 8 time API backport).
-  - Material Design Components (`com.google.android.material`) for rich UI building.
-- **Minimum SDK:** 24 (Android 7.0)
-- **Target SDK:** 34 (Android 14)
+```text
+app/src/main/java/com/darke/habithive/
+  Creation.java              Habit creation flow
+  Dashboard.java             Progress dashboard
+  Habit.java                 Habit detail and tracking screen
+  HabitAdapter.java          Habit list binding
+  UserLoginFragment.java     Login flow
+  UserSignupFragment.java    Registration flow
+  WeekAdapter.java           Weekly calendar binding
 
----
-*Start building better habits with HabitHive today!*
+app/src/main/res/
+  layout/                    Activity, fragment, dialog, and card layouts
+  drawable/                  Category icons and UI backgrounds
+  mipmap-*/                  App launcher assets
+  values/                    App strings, colors, dimensions, and themes
+```
+
+## Requirements
+
+- Android Studio
+- JDK 17 or the JDK bundled with Android Studio
+- Android SDK with compile SDK 34
+- Firebase project configured for the Android package `com.darke.habithive`
+
+## Setup
+
+1. Clone the repository.
+2. Open the project in Android Studio.
+3. Add the Firebase Android configuration file at:
+
+   ```text
+   app/google-services.json
+   ```
+
+4. Sync Gradle.
+5. Build and run the `app` configuration on an emulator or Android device.
+
+## Command-Line Build
+
+From the repository root:
+
+```powershell
+.\gradlew.bat assembleDebug
+```
+
+Run local unit tests:
+
+```powershell
+.\gradlew.bat testDebugUnitTest
+```
+
+## Notes
+
+- `local.properties`, `.gradle/`, IDE workspace files, and build outputs should remain untracked.
+- Firebase service configuration is required for authentication and cloud sync to work.
+- The local checkout may need Git repair if `git status` reports corrupt loose objects.
